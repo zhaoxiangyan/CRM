@@ -10,6 +10,12 @@ import b1 from '../../style/imgs/b1.jpg';
 
 
 class Dashboard extends React.Component {
+    componentDidMount(){
+        console.log('dashboard');
+    }
+    shouldComponentUpdate(nextProps,nextState){
+        return false;
+    }
     render() {
         return (
             <div className="gutter-example button-demo">
@@ -171,4 +177,5 @@ class Dashboard extends React.Component {
     }
 }
 
+// export default withRouter(Dashboard);
 export default Dashboard;

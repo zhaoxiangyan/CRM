@@ -4,7 +4,7 @@ import './style/lib/animate.css';
 import registerServiceWorker from './registerServiceWorker';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware,compose } from 'redux';
 import reducer from './reducer';
 import { AppContainer } from 'react-hot-loader';
 import Page from './Page';
@@ -16,7 +16,8 @@ import zh_TW from './locale/zh_TW';
 
 // redux 注入操作
 const middleware = [thunk];
-const store = createStore(reducer, applyMiddleware(...middleware));
+// const store = createStore(reducer, applyMiddleware(...middleware));
+const store = createStore(reducer,compose(applyMiddleware(...middleware),window.devToolsExtension?window.devToolsExtension():f=>f))
 console.log(store.getState());
 
 // 国际化  暂时全局刷新实现

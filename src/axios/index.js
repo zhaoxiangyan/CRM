@@ -35,4 +35,4 @@ export const admin = () => get({url: config.MOCK_AUTH_ADMIN});
 // 访问权限获取
 export const guest = () => get({url: config.MOCK_AUTH_VISITOR});
 
-// export const brokerwork = () => get({url: config.MOCK_USER_BROKERWORK});
+export const brokerwork = () => get({url: config.MOCK_USER_BROKERWORK});

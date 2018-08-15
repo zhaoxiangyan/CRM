@@ -9,6 +9,7 @@ import routesCN from '../routes/config_CN';
 import routesTW from '../routes/config_TW';
 import routesUS from '../routes/config_US';
 import SiderMenu from './SiderMenu';
+// import logo from '../assets/img/logo.png';
 
 const { Sider } = Layout;
 
@@ -52,6 +53,7 @@ class SiderCustom extends Component {
         // this.setMenuOpen(this.props);
         const state = SiderCustom.setMenuOpen(this.props);
         this.setState(state);
+        console.log('SiderCustom');
     }
     // componentWillReceiveProps(nextProps) {
     //     console.log(nextProps);
@@ -89,12 +91,13 @@ class SiderCustom extends Component {
                 collapsed={this.props.collapsed}
                 style={{ overflowY: 'auto' }}
             >
-                <div className="logo" />
+                <div className="logo">
+                    {/* <img src={logo} /> */}
+                </div>
                 <SiderMenu
                     menus={routes.menus}
                     onClick={this.menuClick}
-                    theme="dark
-                    "
+                    theme="dark"
                     mode="inline"
                     selectedKeys={[this.state.selectedKey]}
                     openKeys={this.state.firstHide ? null : [this.state.openKey]}

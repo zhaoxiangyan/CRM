@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
 import Routes from './routes';
 const { Content, Footer } = Layout;
 
+
 class App extends Component {
     state = {
         collapsed: false,

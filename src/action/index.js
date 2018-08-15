@@ -30,12 +30,16 @@ export const langData = lang =>({
     lang
 });
 
-
 export const receiveUser = (data, category) =>({
     type:type.USER_DATA,
     data,
     category
 }) 
+// export const receiveUser = ({funcName, params, stateName}) => dispatch => {
+//     !stateName && (stateName = funcName);
+//     dispatch(requestData(stateName));
+//     return http[funcName](params).then(res => dispatch(receiveData(res, stateName)));
+// };
 // export const fetchUser = ({url}) => dispatch =>{
 //     dispatch(requestData(url));
 //     return http.brokerwork.then(res => dispatch(receiveUser(res)));

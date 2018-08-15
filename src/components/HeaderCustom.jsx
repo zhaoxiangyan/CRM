@@ -81,19 +81,19 @@ class HeaderCustom extends Component {
         localStorage.setItem('lang', 'zh_CN');
         const {langData} = this.props;
         langData('zh_CN');
-        // window.location.reload();
+        window.location.reload();
     };
     clickTW = () =>{
         localStorage.setItem('lang', 'zh_TW');
         const {langData} = this.props;
         langData('zh_TW');
-        // window.location.reload();
+        window.location.reload();
     };
     clickUS = () =>{
         localStorage.setItem('lang', 'en_US');
         const {langData} = this.props;
         langData('en_US');
-        // window.location.reload();
+        window.location.reload();
     };
     logout = () => {
         localStorage.removeItem('user');

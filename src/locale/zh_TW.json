@@ -28,5 +28,7 @@
     "user.brokerwork.th12":"註冊時間",
     "user.brokerwork.th13":"登錄狀態",
     "user.brokerwork.th14":"直客賬戶",
-    "user.brokerwork.th15":"名下直客"
+    "user.brokerwork.th15":"名下直客",
+    "ranges_day":"今天",
+    "ranges_month":"當月"
 }

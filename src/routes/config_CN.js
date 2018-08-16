@@ -71,5 +71,7 @@ export default {
             key: '/app/cssModule', title: 'cssModule', icon: 'star', component: 'Cssmodule'
         },
     ],
-    others: []  // 非菜单相关路由
+    others: [
+        
+    ]  // 非菜单相关路由
 }

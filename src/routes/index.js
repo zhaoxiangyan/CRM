@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Route, Redirect, Switch } from 'react-router-dom';
 import AllComponents from '../components';
 import routesConfig from './config_CN';
-// import {connect} from 'react-redux';
 
 class CRouter extends Component {
     requireAuth = (permission, component) => {
@@ -30,28 +29,25 @@ class CRouter extends Component {
     }
     render() {
         return (
-            <Switch>
-                {
-                    Object.keys(routesConfig).map(key => 
-                        routesConfig[key].map(r => {
-                            const route = r => {
-                                const Component = AllComponents[r.component];
-                                return (
-                                    <Route
-                                        key={r.route || r.key}
-                                        exact
-                                        path={r.route || r.key}
-                                        component={Component}
-                                    />
-                                )   
-                            }
-                            return r.component ? route(r) : r.subs.map(r => route(r));
-                        })
-                    )
-                }
+            <div>
+                <Switch>
+                    {
+                        Object.keys(routesConfig).map(key => 
+                            routesConfig[key].map(r => {
+                                const route = r => {
+                                    const Component = AllComponents[r.component];
+                                    return (
+                                        <Route key={r.route || r.key} path={r.route || r.key} component={Component} />
+                                    )   
+                                }
+                                return r.component ? route(r) : r.subs.map(r => route(r));
+                            })
+                        )
+                    }
+                    <Route render={() => <Redirect to="/404" />} />
+                </Switch>
+            </div>
 
-                <Route render={() => <Redirect to="/404" />} />
-            </Switch>
         )
     }
 }

@@ -28,5 +28,7 @@
     "user.brokerwork.th12":"Registration Time",
     "user.brokerwork.th13":"Login Permission",
     "user.brokerwork.th14":"Client Account",
-    "user.brokerwork.th15":"Direct Client"
+    "user.brokerwork.th15":"Direct Client",
+    "ranges_day":"Today",
+    "ranges_month":"This Month"
   }

@@ -9,6 +9,13 @@ export default {
             ]
         },
         {
+            key:'/app/custom',title: '客戶', icon:'team',
+            subs: [
+                {key: '/app/custom/customers', title: '客戶', component: 'CustomersIndex'},
+                {key: '/app/custom/sales', title: '銷售機會', component: 'Sales'}
+            ]
+        },
+        {
             key: '/app/ui', title: 'UI', icon: 'scan',
             subs: [
                 { key: '/app/ui/buttons', title: '按鈕', component: 'Buttons'},

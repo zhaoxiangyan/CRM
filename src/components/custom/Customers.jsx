@@ -1,4 +1,4 @@
-// Broker Work 用戶
+// 客戶
 import React, {Component} from 'react';
 import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Cascader, Switch, Upload, Radio } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { receiveUser } from '@/action';
 import moment from 'moment';
-import EditUsermgmt from './Edit_usermgmt';
+import EditUsermgmt from '../user/Edit_usermgmt';
 import {Link,Route} from 'react-router-dom';
 
 const Option = Select.Option;
@@ -21,69 +21,65 @@ const {TextArea} = Input;
 const RadioGroup = Radio.Group;
 
 const columns = [{
-  title: <FormattedMessage id="user.brokerwork.th1" />,
-  dataIndex: 'userid',
+  title: <FormattedMessage id="custom.customers.th1" />,
+  dataIndex: 'action',
   align:'center',
-  sorter: (a,b) => a.userid - b.userid
 }, {
-  title: <FormattedMessage id="user.brokerwork.th2" />,
-  dataIndex: 'name',
-  render:text=><Link to={'/app/user/mgmt/250'}>{text}</Link>,
+  title: <FormattedMessage id="custom.customers.th2" />,
+  dataIndex: 'customername',
+  render:text=><Link to={'/app/custom/customers/250'}>{text}</Link>,
   align:'center',
-  sorter: (a,b) => a.name - b.name
 }, {
-    title: <FormattedMessage id="user.brokerwork.th3" />,
+    title: <FormattedMessage id="custom.customers.th3" />,
+    dataIndex: 'followcontent',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th4" />,
+    dataIndex: 'customerno',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th5" />,
+    dataIndex: 'owner',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th6" />,
+    dataIndex: 'followtime',
+    align:'center',
+    sorter: (a,b) => a.followtime - b.followtime
+}, {
+    title: <FormattedMessage id="custom.customers.th7" />,
+    dataIndex: 'customertype',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th8" />,
+    dataIndex: 'customersource',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th9" />,
+    dataIndex: 'phone',
+    align:'center'
+}, {
+    title: <FormattedMessage id="custom.customers.th10" />,
     dataIndex: 'email',
     align:'center'
 }, {
-    title: <FormattedMessage id="user.brokerwork.th4" />,
-    dataIndex: 'telephone',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th5" />,
-    dataIndex: 'role',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th6" />,
-    dataIndex: 'country',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th7" />,
-    dataIndex: 'comment',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th8" />,
-    dataIndex: 'level',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th9" />,
-    dataIndex: 'superior',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th10" />,
-    dataIndex: 'id',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th11" />,
-    dataIndex: 'subordinate',
-    align:'center'
-}, {
-    title: <FormattedMessage id="user.brokerwork.th12" />,
-    dataIndex: 'registration',
+    title: <FormattedMessage id="custom.customers.th11" />,
+    dataIndex: 'createtime',
     align:'center',
-    sorter: (a,b) => a.registration - b.registration
+    sorter: (a,b) => a.createtime - b.createtime
 }, {
-    title: <FormattedMessage id="user.brokerwork.th13" />,
-    dataIndex: 'loginstatus',
+    title: <FormattedMessage id="custom.customers.th12" />,
+    dataIndex: 'latesttime',
+    align:'center',
+    sorter: (a,b) => a.latesttime - b.latesttime
+}, {
+    title: <FormattedMessage id="custom.customers.th13" />,
+    dataIndex: 'tradingaccount',
     align:'center'
 }, {
-    title: <FormattedMessage id="user.brokerwork.th14" />,
-    dataIndex: 'client',
+    title: <FormattedMessage id="custom.customers.th14" />,
+    dataIndex: 'clientstatus',
     align:'center'
-}, {
-  title: <FormattedMessage id="user.brokerwork.th15" />,
-  dataIndex: 'direct',
-  align:'center'
 }];
 
 // 级联options
@@ -126,8 +122,7 @@ class Usermgmt extends Component {
     }
     componentDidMount(){
         const { receiveUser } = this.props;
-        // receiveUser({funcName:'brokerwork',stateName:'user'});
-        axios.get(config.MOCK_USER_BROKERWORK).then(res => {
+        axios.get(config.MOCK_CUSTOM_CUSTOMERS).then(res => {
             console.log(typeof(res.data.data));
             this.setState({data:res.data,loading:false});
             receiveUser(res.data,'user');
@@ -158,14 +153,12 @@ class Usermgmt extends Component {
     handleChange1 = (value) => {
         console.log(`selected ${value}`);
     }
-    handleBlur1 = () => {
-        console.log('blur');
-    }
-    handleFocus1 = () => {
-        console.log('focus');
-    }
     // 第二个select
     handleChange2 = (value) => {
+        console.log(`selected ${value}`);
+    }
+    // 第三个select
+    handleChange3 = (value) => {
         console.log(`selected ${value}`);
     }
     // 时间选择器
@@ -258,11 +251,11 @@ class Usermgmt extends Component {
         )
         return (
             <div className="gutter-example button-demo">
-                <BreadcrumbCustom first={<FormattedMessage id="user.breadcrumb1" />} second={<FormattedMessage id="user.breadcrumb2" />} />
+                <BreadcrumbCustom first={<FormattedMessage id="custom.breadcrumb1" />} second={<FormattedMessage id="custom.breadcrumb2" />} />
                 <Row gutter={16}>
                     <Col className="gutter-row" md={24}>
                         <div className="gutter-box">
-                            <Card title={<FormattedMessage id="user.brokerwork.title" />} bordered={false} >
+                            <Card title={<FormattedMessage id="custom.customers.title" />} bordered={false} >
                                 <div style={{ marginBottom: 16 }}>
                                     {hasSelected?
                                     <div>
@@ -271,59 +264,57 @@ class Usermgmt extends Component {
                                         </span>
                                         <Button type="primary" onClick={this.start} disabled={!hasSelected} loading={reloadloading}><FormattedMessage id="cancel" /></Button>
                                         <Button type="primary" ><FormattedMessage id="delete" /></Button>
-                                        <Button type="primary" ><FormattedMessage id="user.brokerwork.transfer" /></Button>
+                                        <Button type="primary" ><FormattedMessage id="custom.customers.transfer" /></Button>
                                         <Button type="primary" ><FormattedMessage id="send" /></Button>
+                                        <Button type="primary" ><FormattedMessage id="custom.customers.send" /></Button>
                                     </div>
                                     :
                                     <div>
                                     <InputGroup compact>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Button type="primary" onClick={this.showDrawer} ><Icon type="plus" /><FormattedMessage id="user.brokerwork.add" /></Button>
+                                            <Button type="primary" onClick={this.showDrawer} ><Icon type="plus" /><FormattedMessage id="custom.customers.add" /></Button>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select
-                                                addonBefore="Http://"
-                                                showSearch
-                                                style={{ width: 150 }}
-                                                placeholder="Select a person"
-                                                optionFilterProp="children"
-                                                onChange={this.handleChange1}
-                                                onFocus={this.handleFocus1}
-                                                onBlur={this.handleBlur1}
-                                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                            >
-                                                <Option value="jack">Jack</Option>
-                                                <Option value="lucy">Lucy</Option>
-                                                <Option value="tom">Tom</Option>
+                                            <Select defaultValue="所有客户" style={{ width: 120 }} onChange={this.handleChange1}>
+                                                <Option value="所有客户">所有客户</Option>
+                                                <Option value="归属给我的客户">归属给我的客户</Option>
+                                                <Option value="归属给下级的客户">归属给下级的客户</Option>
+                                                <Option value="无归属客户">无归属客户</Option>
+                                                <Option value="我关注的客户">我关注的客户</Option>
+                                                <Option value="我参与的客户">我参与的客户</Option>
+                                                <Option value="下级参与人的客户">下级参与人的客户</Option>
                                             </Select>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select defaultValue="所有层级" style={{ width: 120 }} onChange={this.handleChange2}>
-                                                <Option value="所有层级">所有层级</Option>
-                                                <Option value="CEO">CEO</Option>
-                                                <Option value="Head of Sales">Head of Sales</Option>
-                                                <Option value="Institutional Sales">Institutional Sales</Option>
-                                                <Option value="Team Leader">Team Leader</Option>
-                                                <Option value="Sales">Sales</Option>
-                                                <Option value="★PIB">★PIB</Option>
-                                                <Option value="PIB">PIB</Option>
-                                                <Option value="MIB">MIB</Option>
-                                                <Option value="IB">IB</Option>
+                                            <Select defaultValue="客户状态" style={{ width: 120 }} onChange={this.handleChange2}>
+                                                <Option value="客户状态">客户状态</Option>
+                                                <Option value="销售线索">销售线索</Option>
+                                                <Option value="潜在客户">潜在客户</Option>
+                                                <Option value="开户客户">开户客户</Option>
+                                                <Option value="入金客户">入金客户</Option>
+                                                <Option value="交易客户">交易客户</Option>
                                             </Select>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
                                             <InputGroup compact>
-                                                <Button><FormattedMessage id="user.registertime" /></Button>
+                                                <Button><FormattedMessage id="custom.customers.create" /></Button>
                                                 <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
                                             </InputGroup>
                                         </span>
+                                        <span style={{marginRight:10,marginBottom:5}}>
+                                            <Select defaultValue="全部来源" style={{ width: 120 }} onChange={this.handleChange3}>
+                                                <Option value="全部来源">全部来源</Option>
+                                                <Option value="代理注册推广链接">代理注册推广链接</Option>
+                                                <Option value="Trader注册推广链接">...</Option>
+                                            </Select>
+                                        </span>
                                         <span style={{float:'right'}}>
                                             <InputGroup compact >
-                                            <Select defaultValue="Sign Up" >
-                                                <Option value="Sign Up">Sign Up</Option>
+                                            <Select defaultValue="客户姓名" >
+                                                <Option value="客户姓名">客户姓名</Option>
                                                 <Option value="Sign In">Sign In</Option>
                                             </Select>
-                                            <Search placeholder="input search text" onSearch={value => console.log(value)} enterButton style={{width:180}} />
+                                            <Search placeholder="搜索" onSearch={value => console.log(value)} enterButton style={{width:180}} />
                                             </InputGroup>
                                         </span>
                                     </InputGroup>

@@ -29,6 +29,8 @@ import MapUi from './ui/map';
 // 用戶
 import Usermgmt from './user/Usermgmt';
 import Bwtauser from './user/Bwtauser';
+// 客户
+import CustomersIndex from './custom/CustomersIndex';
 
 const WysiwygBundle = (props) => (
     <Bundle load={Wysiwyg}>
@@ -41,5 +43,5 @@ export default {
     Echarts, Recharts, Icons, Buttons, Spins, Modals, Notifications,
     Tabs, Banners, Drags, Dashboard, Gallery, BasicAnimations,
     ExampleAnimations, AuthBasic, RouterEnter, WysiwygBundle,
-    Cssmodule, MapUi, Usermgmt, Bwtauser
+    Cssmodule, MapUi, Usermgmt, Bwtauser, CustomersIndex
 }

@@ -51,13 +51,16 @@ class BreadcrumbCustom extends React.Component {
             </div>
         ));
         const first = <Breadcrumb.Item>{this.props.first}</Breadcrumb.Item> || '';
-        const second = <Breadcrumb.Item>{this.props.second}</Breadcrumb.Item> || '';
+        // const second = <Breadcrumb.Item>{this.props.second}</Breadcrumb.Item> || '';
+        const second = this.props.secondlink ?<Breadcrumb.Item><Link to={this.props.secondlink}>{this.props.second}</Link></Breadcrumb.Item>:<Breadcrumb.Item>{this.props.second}</Breadcrumb.Item>
+        const third = <Breadcrumb.Item>{this.props.third}</Breadcrumb.Item> || '';
         return (
             <span>
                 <Breadcrumb style={{ margin: '12px 0' }}>
                     <Breadcrumb.Item><Link to={'/app/dashboard/index'}><FormattedMessage id="home.breadcrumb" /></Link></Breadcrumb.Item>
                         {first}
                         {second}
+                        {third}
                 </Breadcrumb>
                 <div className={`switcher dark-white ${this.state.switcherOn ? 'active' : ''}`}>
                     <a className="sw-btn dark-white" onClick={this.switcherOn}>

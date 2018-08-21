@@ -63,5 +63,15 @@
     "custom.customers.add":"新建客戶",
     "custom.customers.create":"創建時間",
     "custom.customers.transfer":"劃轉",
-    "custom.customers.send":"發送邀請註冊TW郵件"
+    "custom.customers.send":"發送邀請註冊TW郵件",
+    "custom.sales.th1":"機會名稱",
+    "custom.sales.th2":"客戶名稱",
+    "custom.sales.th3":"機會歸屬",
+    "custom.sales.th4":"機會類型",
+    "custom.sales.th5":"銷售階段",
+    "custom.sales.th6":"預計成交金額",
+    "custom.sales.th7":"預計成交時間",
+    "custom.sales.th8":"結單日期",
+    "custom.sales.th9":"創建時間",
+    "custom.breadcrumb4":"銷售機會"
 }

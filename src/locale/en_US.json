@@ -63,5 +63,15 @@
     "custom.customers.add":"Create Customer",
     "custom.customers.create":"Registration Time",
     "custom.customers.transfer":"Transfer",
-    "custom.customers.send":"Send TW Registration Invitation Letter"
+    "custom.customers.send":"Send TW Registration Invitation Letter",
+    "custom.sales.th1":"Opportunity Name",
+    "custom.sales.th2":"Customer Name",
+    "custom.sales.th3":"Opportunity Owner",
+    "custom.sales.th4":"Opportunity Type",
+    "custom.sales.th5":"Sales Cycle Status",
+    "custom.sales.th6":"Expected Sales Amount",
+    "custom.sales.th7":"Expected Sales Date",
+    "custom.sales.th8":"Closing Date",
+    "custom.sales.th9":"Registration Time",
+    "custom.breadcrumb4":"Sales Opportunities"
   }

@@ -63,5 +63,15 @@
     "custom.customers.add":"新建客户",
     "custom.customers.create":"创建时间",
     "custom.customers.transfer":"划转",
-    "custom.customers.send":"发送邀请注册TW邮件"
+    "custom.customers.send":"发送邀请注册TW邮件",
+    "custom.sales.th1":"机会名称",
+    "custom.sales.th2":"客户名称",
+    "custom.sales.th3":"机会归属",
+    "custom.sales.th4":"机会类型",
+    "custom.sales.th5":"销售阶段",
+    "custom.sales.th6":"预计成交金额",
+    "custom.sales.th7":"预计成交时间",
+    "custom.sales.th8":"结单日期",
+    "custom.sales.th9":"创建时间",
+    "custom.breadcrumb4":"销售机会"
 }

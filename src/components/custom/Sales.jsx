@@ -16,44 +16,65 @@ const Search = Input.Search;
 
 const columns = [{
   title: <FormattedMessage id="custom.sales.th1" />,
-  dataIndex: 'id',
-  align:'center',
-  sorter: (a,b) => a.id - b.id
+  dataIndex: 'chancename',
+  align:'center'
 }, {
   title: <FormattedMessage id="custom.sales.th2" />,
-  dataIndex: 'name',
+  dataIndex: 'customername',
   render:text=>text,
-  align:'center',
-  sorter: (a,b) => a.name - b.name
+  align:'center'
 }, {
     title: <FormattedMessage id="custom.sales.th3" />,
-    dataIndex: 'wechat',
+    dataIndex: 'chanceowner',
     align:'center',
 }, {
     title: <FormattedMessage id="custom.sales.th4" />,
-    dataIndex: 'email',
-    align:'center'
+    dataIndex: 'chancetype',
+    align:'center',
+    render:text=>{
+        switch(text){
+            case '1':return'居间';
+            case '2':return '开户';
+            case '3':return '渠道';
+            case '4':return '老客户续约';
+            case '5':return '老客户购买新产品';
+            default:return '';
+        }
+    }
 }, {
     title: <FormattedMessage id="custom.sales.th5" />,
-    dataIndex: 'phone',
-    align:'center'
+    dataIndex: 'salesstatus',
+    align:'center',
+    render:text=>{
+        switch(text){
+            case '1':return'初步接洽';
+            case '2':return '产品推荐';
+            case '3':return '明确意向';
+            case '4':return '确定签约';
+            case '5':return '赢单';
+            case '6':return '输单';
+            default:return '';
+        }
+    }
 }, {
     title: <FormattedMessage id="custom.sales.th6" />,
-    dataIndex: 'username',
+    dataIndex: 'salesamount',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.sales.th7" />,
-    dataIndex: 'account',
-    align:'center'
+    dataIndex: 'salesdate',
+    align:'center',
+    render:text=>moment(Number(text)).format('YYYY-MM-DD hh:mm:ss')
 }, {
     title: <FormattedMessage id="custom.sales.th8" />,
-    dataIndex: 'registration',
+    dataIndex: 'closingdate',
     align:'center',
-    render:text=>moment({text}).format('YYYY-MM-DD hh:mm:ss'),
+    render:text=>moment(Number(text)).format('YYYY-MM-DD hh:mm:ss')
 }, {
     title: <FormattedMessage id="custom.sales.th9" />,
-    dataIndex: 'lastlogin',
-    align:'center'
+    dataIndex: 'registrationdate',
+    align:'center',
+    render:text=>moment(Number(text)).format('YYYY-MM-DD hh:mm:ss')
 }];
 
 class Sales extends Component {
@@ -72,7 +93,7 @@ class Sales extends Component {
     }
     componentDidMount(){
         const { receiveUser } = this.props;
-        axios.get(config.MOCK_USER_TRADERWORK).then(res => {
+        axios.get(config.MOCK_CUSTOM_SALES).then(res => {
             console.log(typeof(res.data.data));
             this.setState({data:res.data,loading:false});
             receiveUser(res.data,'user');

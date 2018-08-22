@@ -1,6 +1,6 @@
 // 客戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
@@ -9,8 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { receiveUser } from '@/action';
 import moment from 'moment';
-import EditUsermgmt from '../user/Edit_usermgmt';
-import {Link,Route} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
@@ -90,7 +89,17 @@ class Usermgmt extends Component {
         // 抽屉
         visible:false,
         // 登录密码框类型
-        passwordType:true
+        passwordType:true,
+        // 上传文件
+        fileList: [{
+            uid: '-1',
+            name: 'xxx.png',
+            status: 'done',
+            url: 'https://broker-upload.oss-cn-hangzhou.aliyuncs.com/prod/3c6a17f0-3eec-11e8-9a8b-07bdeefe7e15.png',
+        }],
+        // 上传文件预览modal
+        previewVisible: false,
+        previewImage: '',
     };
     componentWillMount() {
         console.log('Usermgmt');
@@ -158,8 +167,29 @@ class Usermgmt extends Component {
         if (Array.isArray(e)) {
           return e;
         }
+        e.fileList = e.fileList.slice(-1);
         return e && e.fileList;
     }
+    // 预览图片modal
+    uploadPreview = (file) => {
+        console.log(file);
+        this.setState({
+            previewImage: file.url || file.thumbUrl,
+            previewVisible: true,
+        });
+    }
+    closePreview = () => this.setState({ previewVisible: false })
+    // 新建客户  保存
+    handleSubmit = (e) => {
+        e.preventDefault();
+        this.props.form.validateFields((err, values) => {
+            console.log(err);
+            if (!err) {
+                console.log(err);
+                console.log(values);
+            }
+        });
+    };
     render() {
         const {user,intl} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
@@ -267,7 +297,7 @@ class Usermgmt extends Component {
                     </Col>
                 </Row>
                 <Drawer title="新建客户" width={900} placement="right" onClose={this.onClose} visible={this.state.visible} style={{height: 'calc(100% - 55px)',overflow: 'auto',paddingBottom: 53}}> 
-                    <Form>
+                    <Form onSubmit={this.handleSubmit}>
                         <Card bordered={false} >
                             <Row>
                                 <Col span={11}>
@@ -388,8 +418,15 @@ class Usermgmt extends Component {
                                         {getFieldDecorator('attachment', {
                                                 valuePropName: 'fileList',
                                                 getValueFromEvent: this.normFile,
+                                                initialValue:this.state.fileList
                                             })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
+                                            <Upload 
+                                            name="logo" 
+                                            action="https://www.easy-mock.com/mock/5b6a978b91ff8e254d62047e/crm/upload" 
+                                            accept="image/*" 
+                                            listType="picture"
+                                            onPreview={this.uploadPreview}
+                                            >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
@@ -408,13 +445,21 @@ class Usermgmt extends Component {
                                 </Col>  
                             </Row> 
                         </Card>
+                        <div style={{position: 'absolute',bottom: 0,width: '100%',borderTop: '1px solid #e8e8e8',padding: '10px 16px',textAlign: 'right',left: 0,background: '#fff',borderRadius: '0 0 4px 4px',}}>
+                            <Button htmlType="submit" type="primary">保存</Button>
+                            <Button style={{marginRight: 8,}} onClick={this.onClose}>取消</Button> 
+                        </div>
                     </Form>
-                    <div style={{position: 'absolute',bottom: 0,width: '100%',borderTop: '1px solid #e8e8e8',padding: '10px 16px',textAlign: 'right',left: 0,background: '#fff',borderRadius: '0 0 4px 4px',}}>
-                        <Button onClick={this.onClose} type="primary">保存</Button>
-                        <Button style={{marginRight: 8,}} onClick={this.onClose}>取消</Button> 
-                    </div>
                 </Drawer>
-                <Route path={this.props.match.url+'/:userid'} component={EditUsermgmt} />
+                <Modal 
+                visible={this.state.previewVisible} 
+                footer={null} 
+                onCancel={this.closePreview} 
+                style={{maxWidth:800}}
+                bodyStyle={{textAlign:'center'}}
+                >
+                    <img alt="example" style={{ maxWidth: '100%' }} src={this.state.previewImage} />
+                </Modal>
             </div>
         )
     }

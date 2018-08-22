@@ -42,6 +42,10 @@ const options = [{
 // this.props.match.params.customerid 动态传参 
 class CustomersDetail extends Component{
     state = {
+        // 修改
+        modify:true,
+        // 详细信息展开
+        open:false,
         // 抽屉
         visible:false,
         // 对话框 联系人
@@ -49,6 +53,16 @@ class CustomersDetail extends Component{
         // 对话框 销售机会
         modalvisible1:false,
     };
+    // 详细信息  修改  取消  展开
+    onModify = () => {
+        this.setState({modify:false});
+    }
+    cancelModify = () => {
+        this.setState({modify:true});
+    }
+    onOpen = () => {
+        this.setState({open:!this.state.open});
+    }
     // tab  全部活动
     callback = (key) => {
         console.log(key);
@@ -59,7 +73,7 @@ class CustomersDetail extends Component{
     }
     // 抽屉  查看
     showDrawer = () => {
-        this.setState({visible:true})
+        this.setState({visible:true});
     }
     onClose = () => {
         this.setState({visible: false});
@@ -101,6 +115,7 @@ class CustomersDetail extends Component{
                 placeholder="选择国家/地区代码"
                 optionFilterProp="children"
                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                disabled={this.state.modify}
             >
                 <Option value="+86">+86</Option>
                 <Option value="+886">+886</Option>
@@ -148,9 +163,11 @@ class CustomersDetail extends Component{
                        </Card>
                        <Card 
                             title={<div><Avatar shape="square" icon="user" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>详细信息</span></div>} 
-                            extra={<a href=" javascript:void(0)" style={{verticalAlign:'middle'}}><Icon type="form" />修改</a>} 
+                            extra={this.state.modify&&<a href=" javascript:void(0)" style={{verticalAlign:'middle'}} onClick={this.onModify}><Icon type="form" />修改</a>} 
                             bordered={false} 
-                            style={{marginBottom:15}} 
+                            style={{marginBottom:15}}
+                            className={this.state.modify&&'disabledcard'}
+                            actions={[<a href=" javascript:void(0)" style={{fontSize:14,color:'#00a8a6'}} onClick={this.onOpen}><Icon type={this.state.open?'up-circle':'down-circle'} style={{marginRight:6,fontSize:15}} />{this.state.open?'收起更多':'展开全部'}</a>]}
                        >
                             <Row gutter={50}>
                                 <Col span={12}>
@@ -158,90 +175,90 @@ class CustomersDetail extends Component{
                                         {getFieldDecorator('clientstatus', {
                                             rules: [{ required: true, message: 'Client Status is required' }],
                                         })(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify}>
                                                 <Option value="Sales Leads">Sales Leads</Option>
                                             </Select>
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="Customer No" style={{marginBottom:10}}>
-                                        <Input placeholder="" />
+                                        <Input placeholder="" disabled={this.state.modify} />
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="Participant" style={{marginBottom:10}}>
                                         {getFieldDecorator('participant', {
                                             rules: [{ required: false, message: '' }],
                                         })(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="Sales Leads">Sales Leads</Option>
                                             </Select>
                                         )}
                                     </FormItem>
-                                    <FormItem {...formItemLayout} label="Customer Level" style={{marginBottom:10}}>
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Customer Level" style={{marginBottom:10}}>
                                         {getFieldDecorator('customerlevel', {
                                             rules: [{ required: false, message: '' }],
                                         })(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="High">High</Option>
                                                 <Option value="Middle">Middle</Option>
                                                 <Option value="Low">Low</Option>
                                             </Select>
                                         )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="People Count" style={{marginBottom:5}}>
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="People Count" style={{marginBottom:5}}>
                                         {getFieldDecorator('peoplecount', {
                                             rules: [{ required: false, message: '' }],
                                         })(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="Below 20">Below 20</Option>
                                                 <Option value="20-99 man">20-99 man</Option>
                                                 <Option value="100-500 man">100-500 man</Option>
                                                 <Option value="More than 500">More than 500</Option>
                                             </Select>
                                         )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
                                         {getFieldDecorator('phone', {
                                             rules: [{ required: false, message: '请输入手机号码!' }],
                                         })(
-                                            <Input addonBefore={inputBefore} placeholder="" />
+                                            <Input addonBefore={inputBefore} placeholder="" disabled={this.state.modify} />
                                         )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="IM" style={{marginBottom:10}}>
-                                        {getFieldDecorator('IM')(<Input />)}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Fax" style={{marginBottom:10}}>
-                                        {getFieldDecorator('fax')(<Input />)}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Other contacts" style={{marginBottom:10}}>
-                                        {getFieldDecorator('othercontacts')(<Input />)}
-                                    </FormItem>
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="IM" style={{marginBottom:10}}>
+                                        {getFieldDecorator('IM')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Fax" style={{marginBottom:10}}>
+                                        {getFieldDecorator('fax')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Other contacts" style={{marginBottom:10}}>
+                                        {getFieldDecorator('othercontacts')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
                                 </Col>
                                 <Col span={12}>
                                     <FormItem {...formItemLayout} label="Customer Name" style={{marginBottom:10}}>
                                         {getFieldDecorator('customername', {
                                             rules: [{ required: true, message: 'Customer Name is required' }],
                                         })(
-                                            <Input placeholder="" />
+                                            <Input placeholder="" disabled={this.state.modify} />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="Principal owner" style={{marginBottom:10}}>
                                         {getFieldDecorator('owner')(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="Sandy">Sandy</Option>
                                             </Select>
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="Customer Type" style={{marginBottom:10}}>
                                         {getFieldDecorator('customertype')(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="Straight off">Straight off</Option>
                                                 <Option value="agent">agent</Option>
                                                 <Option value="VIP">VIP</Option>
                                             </Select>
                                         )}
                                     </FormItem>
-                                    <FormItem {...formItemLayout} label="Customer source" style={{marginBottom:10}}>
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Customer source" style={{marginBottom:10}}>
                                         {getFieldDecorator('source')(
-                                            <Select style={{ width: '100%' }} >
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="official website registration">official website registration</Option>
                                                 <Option value="list data">list data</Option>
                                                 <Option value="customer introduction">customer introduction</Option>
@@ -250,46 +267,47 @@ class CustomersDetail extends Component{
                                                 <Option value="new sales">new sales</Option>
                                             </Select>
                                         )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Introducer" style={{marginBottom:10}}>
-                                        {getFieldDecorator('introducer')(<Input />)}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Email" style={{marginBottom:10}}>
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Introducer" style={{marginBottom:10}}>
+                                        {getFieldDecorator('introducer')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Email" style={{marginBottom:10}}>
                                         {getFieldDecorator('email', {
                                             rules: [{ required: true, message: 'Email is required' }],
                                         })(
-                                            <Input placeholder="" />
+                                            <Input placeholder="" disabled={this.state.modify} />
                                         )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Social" style={{marginBottom:10}}>
-                                        {getFieldDecorator('social')(<Input />)}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Site" style={{marginBottom:10}}>
-                                        {getFieldDecorator('site')(<Input />)}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Attachment" style={{marginBottom:10}}>
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Social" style={{marginBottom:10}}>
+                                        {getFieldDecorator('social')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Site" style={{marginBottom:10}}>
+                                        {getFieldDecorator('site')(<Input disabled={this.state.modify} />)}
+                                    </FormItem>}
+                                    {this.state.open&&<FormItem {...formItemLayout} label="Attachment" style={{marginBottom:10}}>
                                         {getFieldDecorator('attachment', {
                                                 valuePropName: 'fileList',
                                                 getValueFromEvent: this.normFile,
                                             })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
-                                                <Button>
-                                                <Icon type="upload" /> Click to upload
-                                                </Button>
+                                            <Upload name="logo" action="/upload.do" listType="picture" disabled={this.state.modify}>
+                                                <Button><Icon type="upload" /> Click to upload</Button>
                                             </Upload>
                                         )}
-                                    </FormItem>
+                                    </FormItem>}
                                 </Col>
                                 <Col span={24}>
-                                    <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
+                                    {this.state.open&&<FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
                                         {getFieldDecorator('remarks', {
                                             rules: [{ required: false, message: '请输入备注!' }],
                                         })(
-                                            <TextArea rows={3} />
+                                            <TextArea rows={3} disabled={this.state.modify} />
                                         )}
-                                    </FormItem>
+                                    </FormItem>}
                                 </Col>  
-                            </Row> 
+                            </Row>
+                            {this.state.modify||<div style={{textAlign:'right'}}>
+                                <Button type="primary">保存</Button><Button onClick={this.cancelModify}>取消</Button>
+                            </div>}
                        </Card>
                        <Card 
                             title={<div><Avatar shape="square" icon="wallet" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>交易账户</span></div>} 

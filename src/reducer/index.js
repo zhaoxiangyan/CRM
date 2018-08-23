@@ -26,6 +26,8 @@ const httpData = (state = {}, action) => {
             };
         case type.LANGUAGE_DATA:
             return {...state,lang:action.lang}
+        case type.PHONE_DATA:
+            return {...state,code:action.data.map( r=>{return {'value':r.value,'option':r[action.lang],'img':r.img} })};
         default:
             return {...state};
     }
@@ -42,6 +44,8 @@ const httpUser = (state = {},action)=>{
             return {...state};
     }
 }
+
+
 export default combineReducers({
     httpData,httpUser
 });

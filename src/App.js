@@ -3,10 +3,12 @@ import { Layout, notification, Icon } from 'antd';
 import './style/index.less';
 import SiderCustom from './components/SiderCustom';
 import HeaderCustom from './components/HeaderCustom';
-import { receiveData,langData } from './action';
+import { receiveData,langData,codeData } from './action';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Routes from './routes';
+import Code from './locale/phone_Code';
+
 const { Content, Footer } = Layout;
 
 
@@ -15,13 +17,16 @@ class App extends Component {
         collapsed: false,
     };
     componentWillMount() {
-        const { receiveData,langData } = this.props;
+        const { receiveData,langData,codeData } = this.props;
         const user = JSON.parse(localStorage.getItem('user'));
         const lang = localStorage.getItem('lang');
         user && receiveData(user, 'auth');
         lang && langData(lang);
         // receiveData({a: 213}, 'auth');
         // fetchData({funcName: 'admin', stateName: 'auth'});
+        // 获取手机区号 并储存进store
+        console.log(Code);
+        codeData(Code,lang);
         this.getClientWidth();
         window.onresize = () => {
             console.log('屏幕变化了');
@@ -98,7 +103,8 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch => ({
     receiveData: bindActionCreators(receiveData, dispatch),
-    langData:bindActionCreators(langData,dispatch)
+    langData:bindActionCreators(langData,dispatch),
+    codeData:bindActionCreators(codeData,dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

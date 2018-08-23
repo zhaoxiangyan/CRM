@@ -2,10 +2,12 @@
  * Created by hao.cheng on 2017/4/16.
  */
 import React from 'react';
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, Menu, Dropdown } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchData, receiveData } from '@/action';
+import { fetchData, receiveData, langData } from '@/action';
+import {FormattedMessage} from 'react-intl';
+import {Link} from 'react-router-dom';
 
 const FormItem = Form.Item;
 
@@ -45,13 +47,31 @@ class Login extends React.Component {
         // window.location.href = 'https://github.com/login/oauth/authorize?client_id=792cdcd244e98dcd2dee&redirect_uri=http://localhost:3006/&scope=user&state=reactAdmin';
         console.log('第三方登录');
     };
+    // 国际化
+    langClick = e => {
+        localStorage.setItem('lang', e.key);
+        const {langData} = this.props;
+        langData(e.key);
+        window.location.reload();
+    };
     render() {
+        const { lang } = this.props;
         const { getFieldDecorator } = this.props.form;
+        const menu = (
+            <Menu onClick={this.langClick}>
+                {lang !== 'zh_CN' && <Menu.Item key="zh_CN">简体中文</Menu.Item>}
+                {lang !== 'en_US' && <Menu.Item key="en_US">English</Menu.Item>}
+                {lang !== 'zh_TW' && <Menu.Item key="zh_TW">繁体中文</Menu.Item>}
+            </Menu>
+        )
         return (
             <div className="login">
                 <div className="login-form" >
                     <div className="login-logo">
-                        <span>React Admin</span>
+                        <span>Admin</span>
+                        <Dropdown overlay={menu}>
+                            <Button size="small"><FormattedMessage id="title" /><Icon type="down" /></Button>
+                        </Dropdown>          
                     </div>
                     <Form onSubmit={this.handleSubmit} style={{maxWidth: '300px'}}>
                         <FormItem>
@@ -75,7 +95,7 @@ class Login extends React.Component {
                             })(
                                 <Checkbox>记住我</Checkbox>
                             )}
-                            <a className="login-form-forgot" href="" style={{float: 'right'}}>忘记密码</a>
+                            <Link to="/findpassword" className="login-form-forgot" href="" style={{float: 'right'}}>忘记密码？</Link>
                             <Button type="primary" htmlType="submit" className="login-form-button" style={{width: '100%'}}>
                                 登录
                             </Button>
@@ -93,12 +113,13 @@ class Login extends React.Component {
 }
 
 const mapStateToPorps = state => {
-    const { auth } = state.httpData;
-    return { auth };
+    const { auth,lang = {data: {}} } = state.httpData;
+    return { auth,lang };
 };
 const mapDispatchToProps = dispatch => ({
     fetchData: bindActionCreators(fetchData, dispatch),
-    receiveData: bindActionCreators(receiveData, dispatch)
+    receiveData: bindActionCreators(receiveData, dispatch),
+    langData: bindActionCreators(langData, dispatch)
 });
 
 

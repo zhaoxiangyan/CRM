@@ -167,8 +167,8 @@ class HeaderCustom extends Component {
 }
 
 const mapStateToProps = state => {
-    const { responsive = {data: {}}, lang = {data: {}} } = state.httpData;
-    return {responsive,lang};
+    const { responsive = {data: {}} } = state.httpData;
+    return {responsive};
 };
 const mapDispatchToProps = dispatch => ({
     langData: bindActionCreators(langData, dispatch)

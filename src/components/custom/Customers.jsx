@@ -100,6 +100,8 @@ class Usermgmt extends Component {
         // 上传文件预览modal
         previewVisible: false,
         previewImage: '',
+        // 手机号区号
+        code:''
     };
     componentWillMount() {
         console.log('Usermgmt');
@@ -161,6 +163,17 @@ class Usermgmt extends Component {
     onClose = () => {
         this.setState({visible: false});
     };
+    // 手机区号选择
+    phoneChange = (value) => {
+        console.log(value);
+        // this.props.form.setFieldsValue({phone:`${value} `});
+        this.setState({code:`${value} `});
+    }
+    // normalizePhone = (value,prevValue = []) => {
+    //     if(this.state.code){
+    //         return this.state.code+value
+    //     }
+    // }
     // upload 附件
     normFile = (e) => {
         console.log('Upload event:', e);
@@ -204,17 +217,24 @@ class Usermgmt extends Component {
         const formItemLayout1 = {labelCol: { span: 5 },wrapperCol: { span: 19 }};
         const { getFieldDecorator } = this.props.form;
         // 手机select
-        const inputBefore = (
+        const {code} = this.props;
+        console.log(code);
+        const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
                 style={{ width: 80 }}
                 placeholder="选择国家/地区代码"
                 optionFilterProp="children"
-                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                optionLabelProp="value"
+                dropdownMatchSelectWidth={false}
+                filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
+                onChange={this.phoneChange}
             >
-                <Option value="+86">中国大陆</Option>
-                <Option value="+886">台湾</Option>
-                <Option value="+852">香港</Option>
+            {code.map(r=>{
+                return (
+                    <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
+                )
+            })}
             </Select>
         )
         return (
@@ -348,6 +368,7 @@ class Usermgmt extends Component {
                                     <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
                                         {getFieldDecorator('phone', {
                                             rules: [{ required: false, message: '请输入手机号码!' }],
+                                            normalize:this.normalizePhone
                                         })(
                                             <Input addonBefore={inputBefore} placeholder="" />
                                         )}
@@ -467,7 +488,8 @@ class Usermgmt extends Component {
 
 const mapStateToProps = state => {
     const { user = {data: {}} } = state.httpUser;
-    return {user};
+    const { code = {data: {}} } = state.httpData;
+    return {user,code};
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -475,4 +497,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Usermgmt)));
-// export default Usermgmt;

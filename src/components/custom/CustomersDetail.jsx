@@ -175,7 +175,7 @@ class CustomersDetail extends Component{
                                         {getFieldDecorator('clientstatus', {
                                             rules: [{ required: true, message: 'Client Status is required' }],
                                         })(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify}>
+                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
                                                 <Option value="Sales Leads">Sales Leads</Option>
                                             </Select>
                                         )}

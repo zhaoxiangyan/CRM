@@ -44,3 +44,10 @@ export const receiveUser = (data, category) =>({
 //     dispatch(requestData(url));
 //     return http.brokerwork.then(res => dispatch(receiveUser(res)));
 // }
+
+// 手机区号
+export const codeData = (data,lang) =>({
+    type:type.PHONE_DATA,
+    data,
+    lang
+})

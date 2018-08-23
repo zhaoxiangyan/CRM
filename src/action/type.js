@@ -9,3 +9,6 @@ export const RECEIVE_DATA = 'RECEIVE_DATA';
 export const LANGUAGE_DATA = 'LANGUAGE_DATA';
 
 export const USER_DATA = 'USER_DATA';
+
+// 手机区号
+export const PHONE_DATA = 'PHONE_DATA';

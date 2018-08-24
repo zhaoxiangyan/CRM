@@ -51,3 +51,9 @@ export const codeData = (data,lang) =>({
     data,
     lang
 })
+
+// 用户登录
+export const authData = (data) =>({
+    type:type.AUTH_DATA,
+    data
+});

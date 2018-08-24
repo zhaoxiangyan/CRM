@@ -40,7 +40,7 @@ class FindPassword extends React.Component {
             <div className="login">
                 <div className="login-form" >
                     <div className="login-logo">
-                        <span>找回密码</span>
+                        <span><img src={require('../../assets/img/logo.png')} alt="gqfx" /></span>
                         <Dropdown overlay={menu}>
                             <Button size="small"><FormattedMessage id="title" /><Icon type="down" /></Button>
                         </Dropdown>          

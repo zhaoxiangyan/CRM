@@ -2,28 +2,24 @@
  * Created by hao.cheng on 2017/4/16.
  */
 import React from 'react';
-import { Form, Icon, Input, Button, Checkbox, Menu, Dropdown } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, Menu, Dropdown, Alert } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchData, receiveData, langData } from '@/action';
+import { fetchData, receiveData, langData, authData } from '@/action';
 import {FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
+import axios from 'axios';
 
 const FormItem = Form.Item;
 
 class Login extends React.Component {
-    componentWillMount() {
-        const { receiveData } = this.props;
-        receiveData(null, 'auth');
+    state = {
+        error:'',
+        errorstatus:true
     }
-    // componentWillReceiveProps(nextProps) {
-    //     const { auth: nextAuth = {} } = nextProps;
-    //     const { history } = this.props;
-    //     if (nextAuth.data && nextAuth.data.uid) {   // 判断是否登陆
-    //         localStorage.setItem('user', JSON.stringify(nextAuth.data));
-    //         history.push('/');
-    //     }
-    // }
+    componentWillMount() {
+        localStorage.getItem('user')&&this.props.history.push('/app/dashboard/index');
+    }
     componentDidUpdate(prevProps) { // React 16.3+弃用componentWillReceiveProps
         const { auth: nextAuth = {}, history } = this.props;
         // const { history } = this.props;
@@ -35,17 +31,26 @@ class Login extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
+            console.log(values);
             if (!err) {
                 console.log('Received values of form: ', values);
-                const { fetchData } = this.props;
-                if (values.userName === 'admin' && values.password === 'admin') fetchData({funcName: 'admin', stateName: 'auth'});
-                if (values.userName === 'guest' && values.password === 'guest') fetchData({funcName: 'guest', stateName: 'auth'});
+                    axios({
+                        method:'post',
+                        url:'/api/api/admin/login',
+                        data:values
+                    }).then((res)=>{
+                        if(res.data.code){
+                            this.setState({errorstatus:res.data.code});
+                            authData(res.data.data);
+                            localStorage.setItem('user', JSON.stringify(res.data.data));
+                            this.props.history.push('/app/dashboard/index');
+                        }else{
+                            this.setState({error:res.data.message,errorstatus:res.data.code});
+                        }   
+                    })
+                // if (values.userName === 'guest' && values.password === 'guest') fetchData({funcName: 'guest', stateName: 'auth'});
             }
         });
-    };
-    gitHub = () => {
-        // window.location.href = 'https://github.com/login/oauth/authorize?client_id=792cdcd244e98dcd2dee&redirect_uri=http://localhost:3006/&scope=user&state=reactAdmin';
-        console.log('第三方登录');
     };
     // 国际化
     langClick = e => {
@@ -68,24 +73,27 @@ class Login extends React.Component {
             <div className="login">
                 <div className="login-form" >
                     <div className="login-logo">
-                        <span>Admin</span>
+                        <span><img src={require('../../assets/img/logo.png')} alt="gqfx" /></span>
                         <Dropdown overlay={menu}>
                             <Button size="small"><FormattedMessage id="title" /><Icon type="down" /></Button>
                         </Dropdown>          
                     </div>
-                    <Form onSubmit={this.handleSubmit} style={{maxWidth: '300px'}}>
+                    {this.state.errorstatus||<Alert message={this.state.error} type="error" style={{marginBottom:15}} />}
+                    <Form onSubmit={this.handleSubmit} >
                         <FormItem>
                             {getFieldDecorator('userName', {
                                 rules: [{ required: true, message: '请输入用户名!' }],
+                                initialValue:'admin'
                             })(
-                                <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="管理员输入admin, 游客输入guest" />
+                                <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="邮箱" />
                             )}
                         </FormItem>
                         <FormItem>
                             {getFieldDecorator('password', {
                                 rules: [{ required: true, message: '请输入密码!' }],
+                                initialValue:'admin'
                             })(
-                                <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="password" placeholder="管理员输入admin, 游客输入guest" />
+                                <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="password" placeholder="密码" />
                             )}
                         </FormItem>
                         <FormItem>
@@ -99,10 +107,6 @@ class Login extends React.Component {
                             <Button type="primary" htmlType="submit" className="login-form-button" style={{width: '100%'}}>
                                 登录
                             </Button>
-                            <p style={{display: 'flex', justifyContent: 'space-between'}}>
-                                <a href="">或 现在就去注册!</a>
-                                <a onClick={this.gitHub} ><Icon type="github" />(第三方登录)</a>
-                            </p>
                         </FormItem>
                     </Form>
                 </div>
@@ -113,13 +117,14 @@ class Login extends React.Component {
 }
 
 const mapStateToPorps = state => {
-    const { auth,lang = {data: {}} } = state.httpData;
-    return { auth,lang };
+    const { lang = {data: {}} } = state.httpData;
+    return { lang };
 };
 const mapDispatchToProps = dispatch => ({
     fetchData: bindActionCreators(fetchData, dispatch),
     receiveData: bindActionCreators(receiveData, dispatch),
-    langData: bindActionCreators(langData, dispatch)
+    langData: bindActionCreators(langData, dispatch),
+    authData: bindActionCreators(authData, dispatch)
 });
 
 

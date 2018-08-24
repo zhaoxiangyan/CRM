@@ -28,6 +28,8 @@ const httpData = (state = {}, action) => {
             return {...state,lang:action.lang}
         case type.PHONE_DATA:
             return {...state,code:action.data.map( r=>{return {'value':r.value,'option':r[action.lang],'img':r.img} })};
+        case type.AUTH_DATA:
+            return {...state,user:action.data};
         default:
             return {...state};
     }

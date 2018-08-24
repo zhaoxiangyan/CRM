@@ -101,10 +101,26 @@ class Usermgmt extends Component {
         previewVisible: false,
         previewImage: '',
         // 手机号区号
-        code:''
+        code:'',
+        // 查询条件
+        search:{
+           type:'0',
+           status:'0',
+           timetype:'0',
+           start:'',
+           end:'',
+           source:'0',
+           keywordtype:'0',
+           keyword:'',
+           page:'1',
+           pagesize:'10'
+        },
+        // 总条数
+        total:50
+
     };
     componentWillMount() {
-        console.log('Usermgmt');
+        this.getCustomerlists();
     }
     componentDidMount(){
         const { receiveUser } = this.props;
@@ -121,6 +137,19 @@ class Usermgmt extends Component {
            return;
         };
     }
+    // 获取客户列表
+    getCustomerlists = () => {
+        console.log(this.state.search);
+        // axios({
+        //     method:'post',
+        //     url:'/api/api/admin/getcustomerlists',
+        //     data:this.state.search
+        // }).then((res)=>{
+        //     console.log("res:",res);  
+        // }).catch((err)=>{
+        //     console.log("err:",err);
+        // })
+    }
     start = () => {
         this.setState({ reloadloading: true });
         // ajax request after empty completing
@@ -135,24 +164,41 @@ class Usermgmt extends Component {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
     }
-    // 第一个select
+    // 第一个select 所有客户
     handleChange1 = (value) => {
-        console.log(`selected ${value}`);
+        this.setState({search:{type:`${value}`}},()=>{this.getCustomerlists();});
     }
-    // 第二个select
+    // 第二个select 客户状态
     handleChange2 = (value) => {
         console.log(`selected ${value}`);
     }
-    // 第三个select
-    handleChange3 = (value) => {
+    timetypeChange = (value) => {
         console.log(`selected ${value}`);
     }
-    // 时间选择器
+    // 时间选择器 创建时间
     onChange3 = (dates, dateStrings) => {
         console.log('From: ', dates[0], ', to: ', dates[1]);
         console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
     }
+    // 第三个select 全部来源
+    handleChange3 = (value) => {
+        console.log(`selected ${value}`);
+    }
+    // 第四个select 客户姓名
+    handleChange4 = (value) => {
+        console.log(`selected ${value}`);
+    }
+    // 关键词搜索
+    handleSearch = (value) => {
+        console.log(value);
+    }
     // 分页器
+    pageChange = (page,pageSize) => {
+        console.log(page,pageSize);
+    }
+    pagesizeChange = (current,size) => {
+        console.log(current,size);
+    }
     showTotal = (total) => {
         return `Total ${total} items`;
     }
@@ -218,7 +264,6 @@ class Usermgmt extends Component {
         const { getFieldDecorator } = this.props.form;
         // 手机select
         const {code} = this.props;
-        console.log(code);
         const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
@@ -263,54 +308,72 @@ class Usermgmt extends Component {
                                             <Button type="primary" onClick={this.showDrawer} ><Icon type="plus" /><FormattedMessage id="custom.customers.add" /></Button>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select defaultValue="所有客户" style={{ width: 120 }} onChange={this.handleChange1}>
-                                                <Option value="所有客户">所有客户</Option>
-                                                <Option value="归属给我的客户">归属给我的客户</Option>
-                                                <Option value="归属给下级的客户">归属给下级的客户</Option>
-                                                <Option value="无归属客户">无归属客户</Option>
-                                                <Option value="我关注的客户">我关注的客户</Option>
-                                                <Option value="我参与的客户">我参与的客户</Option>
-                                                <Option value="下级参与人的客户">下级参与人的客户</Option>
+                                            <Select defaultValue="0" style={{ width: 120 }} onChange={this.handleChange1}>
+                                                <Option value="0">所有客户</Option>
+                                                <Option value="1">归属给我的客户</Option>
+                                                <Option value="2">归属给下级的客户</Option>
+                                                <Option value="3">无归属客户</Option>
+                                                <Option value="4">我关注的客户</Option>
+                                                <Option value="5">我参与的客户</Option>
+                                                <Option value="6">下级参与人的客户</Option>
                                             </Select>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select defaultValue="客户状态" style={{ width: 120 }} onChange={this.handleChange2}>
-                                                <Option value="客户状态">客户状态</Option>
-                                                <Option value="销售线索">销售线索</Option>
-                                                <Option value="潜在客户">潜在客户</Option>
-                                                <Option value="开户客户">开户客户</Option>
-                                                <Option value="入金客户">入金客户</Option>
-                                                <Option value="交易客户">交易客户</Option>
+                                            <Select defaultValue="0" style={{ width: 120 }} onChange={this.handleChange2}>
+                                                <Option value="0">客户状态</Option>
+                                                <Option value="1">销售线索</Option>
+                                                <Option value="2">潜在客户</Option>
+                                                <Option value="3">开户客户</Option>
+                                                <Option value="4">入金客户</Option>
+                                                <Option value="5">交易客户</Option>
                                             </Select>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
                                             <InputGroup compact>
-                                                <Button><FormattedMessage id="custom.customers.create" /></Button>
+                                                {/* <Button><FormattedMessage id="custom.customers.create" /></Button> */}
+                                                <Select defaultValue="0" onChange={this.timetypeChange}>
+                                                    <Option value="0">创建时间</Option>
+                                                    <Option value="1">回访时间</Option>
+                                                    <Option value="2">最近跟进时间</Option>
+                                                </Select>
                                                 <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
                                             </InputGroup>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select defaultValue="全部来源" style={{ width: 120 }} onChange={this.handleChange3}>
-                                                <Option value="全部来源">全部来源</Option>
-                                                <Option value="代理注册推广链接">代理注册推广链接</Option>
-                                                <Option value="Trader注册推广链接">...</Option>
+                                            <Select defaultValue="0" style={{ width: 120 }} onChange={this.handleChange3}>
+                                                <Option value="0">全部来源</Option>
+                                                <Option value="1">代理注册推广链接</Option>
+                                                <Option value="2">Trader注册推广链接</Option>
+                                                <Option value="3">官网代理申请</Option>
+                                                <Option value="4">FX168推广</Option>
+                                                <Option value="5">官网注册</Option>
+                                                <Option value="6">名单数据</Option>
+                                                <Option value="7">客户介绍</Option>
+                                                <Option value="8">居间介绍</Option>
+                                                <Option value="9">线下活动</Option>
+                                                <Option value="10">销售新增</Option>
                                             </Select>
                                         </span>
                                         <span style={{float:'right'}}>
                                             <InputGroup compact >
-                                            <Select defaultValue="客户姓名" >
-                                                <Option value="客户姓名">客户姓名</Option>
-                                                <Option value="Sign In">Sign In</Option>
+                                            <Select defaultValue="0" onChange={this.handleChange4}>
+                                                <Option value="0">客户姓名</Option>
+                                                <Option value="1">客户归属</Option>
+                                                <Option value="2">客户编号</Option>
+                                                <Option value="3">电话</Option>
+                                                <Option value="4">邮箱</Option>
+                                                <Option value="5">参与人</Option>
+                                                <Option value="6">实盘账号</Option>
                                             </Select>
-                                            <Search placeholder="搜索" onSearch={value => console.log(value)} enterButton style={{width:180}} />
+                                            <Search placeholder="搜索" onSearch={this.handleSearch} enterButton style={{width:180}} />
                                             </InputGroup>
                                         </span>
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} />
+                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} />
                                 <div style={{textAlign:'right',marginTop:20}}>
-                                    <Pagination size="small" total={50} showTotal={this.showTotal} showSizeChanger showQuickJumper />
+                                    <Pagination size="small" total={this.state.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
                             </Card>
                         </div>

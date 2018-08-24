@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
 import Routes from './routes';
 import Code from './locale/phone_Code';
 
+
 const { Content, Footer } = Layout;
 
 
@@ -18,6 +19,7 @@ class App extends Component {
     };
     componentWillMount() {
         const { receiveData,langData,codeData } = this.props;
+        localStorage.getItem('user')||this.props.history.push('/login');
         const user = JSON.parse(localStorage.getItem('user'));
         const lang = localStorage.getItem('lang');
         user && receiveData(user, 'auth');
@@ -65,7 +67,7 @@ class App extends Component {
         });
     };
     render() {
-        // console.log(this.props.auth);
+        console.log(this.props.auth);
         // console.log(this.props.responsive);
         const { auth, responsive, lang } = this.props;
         return (

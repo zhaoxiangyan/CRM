@@ -13,7 +13,6 @@ import { bindActionCreators } from 'redux';
 import { langData } from '@/action';
 const { Header } = Layout;
 const SubMenu = Menu.SubMenu;
-const MenuItemGroup = Menu.ItemGroup;
 
 
 class HeaderCustom extends Component {
@@ -143,16 +142,24 @@ class HeaderCustom extends Component {
                             <Icon type="notification" />
                         </Badge>
                     </Menu.Item>
+                    <SubMenu title={<Icon type="setting" />}>
+                        <Menu.Item key="setting:1">消息设置</Menu.Item>
+                        <Menu.Item key="setting:2">操作日志</Menu.Item>
+                        <Menu.Item key="setting:3">用户管理</Menu.Item>
+                        <Menu.Item key="setting:4">账户设置</Menu.Item>
+                        <Menu.Item key="setting:5">返佣管理</Menu.Item>
+                        <Menu.Item key="setting:6">搜索模板设置</Menu.Item>
+                        <Menu.Item key="setting:7">出入金统计设置</Menu.Item>
+                        <Menu.Item key="setting:8">通知中心</Menu.Item>
+                    </SubMenu>
                     <SubMenu title={<span className="avatar"><img src={require('../style/imgs/b1.jpg')} alt="头像" /><i className="on bottom b-white" /></span>}>
-                        <MenuItemGroup title="用户中心">
-                            <Menu.Item key="setting:1">你好 - {this.props.user.userName}</Menu.Item>
-                            <Menu.Item key="setting:2">个人信息</Menu.Item>
-                            <Menu.Item key="logout"><span onClick={this.logout}>退出登录</span></Menu.Item>
-                        </MenuItemGroup>
-                        <MenuItemGroup title="设置中心">
-                            <Menu.Item key="setting:3">个人设置</Menu.Item>
-                            <Menu.Item key="setting:4">系统设置</Menu.Item>
-                        </MenuItemGroup>
+                        <Menu.Item key="user:1">你好 - {this.props.user.userName}</Menu.Item>
+                        <Menu.Item key="user:2">出金申请</Menu.Item>
+                        <Menu.Item key="user:3">修改密码</Menu.Item>
+                        <Menu.Item key="user:4">个人资料</Menu.Item>
+                        <Menu.Item key="user:5">推广链接</Menu.Item>
+                        <Menu.Item key="user:6">邮箱设置</Menu.Item>
+                        <Menu.Item key="logout"><span onClick={this.logout}>退出登录</span></Menu.Item>
                     </SubMenu>
                 </Menu>
                 {/* <style>{`

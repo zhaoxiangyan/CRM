@@ -1,13 +1,12 @@
 // 账户
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal, Checkbox, Radio, Cascader, Switch } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, 
+    Drawer, Form, Upload, Modal, Checkbox, Radio, Cascader, Switch, Alert } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
 import * as config from '../../axios/config';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { receiveUser } from '@/action';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
 
@@ -25,7 +24,7 @@ const columns = [{
   title: <FormattedMessage id="account" />,
   dataIndex: 'account',
   align:'center',
-  render:text=><Link to={'/app/accounts/250'}>{text}</Link>,
+  render:text=><Link to={`/app/accounts/${text}`} >{text}</Link>,
   sorter: (a,b) => a.account - b.account
 }, {
   title: <FormattedMessage id="bound.customer" />,
@@ -161,14 +160,16 @@ const options = [{
 
 
 
-class Usermgmt extends Component {
+class Accounts extends Component {
     state = {
+        // 数据更新时间
+        refreshtime:'',
         selectedRowKeys: [], // Check here to configure the default column
         reloadloading: false,
         loading:true,
         data:{},
         // 抽屉
-        visible:true,
+        visible:false,
         // radio
         radiovalue:0,
         // 绑定客户选中
@@ -206,13 +207,12 @@ class Usermgmt extends Component {
     };
     componentWillMount() {
         this.getCustomerlists();
+        this.setState({refreshtime:moment(new Date()).format('YYYY-MM-DD hh:mm:ss')})
     }
     componentDidMount(){
-        const { receiveUser } = this.props;
         axios.get(config.MOCK_ACCOUNTS).then(res => {
             console.log(typeof(res.data.data));
             this.setState({data:res.data,loading:false});
-            receiveUser(res.data,'user');
         }).catch(err => {
             console.log(err);
         });  
@@ -226,6 +226,17 @@ class Usermgmt extends Component {
     getCustomerlists = () => {
         console.log(this.state.search);
     }
+    // 数据更新
+    refresh = () => {
+        this.setState({loading:true});
+        axios.get(config.MOCK_ACCOUNTS).then(res => {
+            console.log(typeof(res.data.data));
+            this.setState({data:res.data,loading:false,refreshtime:moment(new Date()).format('YYYY-MM-DD hh:mm:ss')});
+        }).catch(err => {
+            console.log(err);
+        }); 
+    }
+    // 取消
     start = () => {
         this.setState({ reloadloading: true });
         // ajax request after empty completing
@@ -236,6 +247,7 @@ class Usermgmt extends Component {
             });
         }, 1000);
     }
+    // 表格勾选
     onSelectChange = (selectedRowKeys) => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
@@ -283,6 +295,7 @@ class Usermgmt extends Component {
         this.setState({
           radiovalue: e.target.value,
         });
+        if(e.target.value === 0){this.setState({bindselected:false});}
     }
     // 绑定客户 
     bindChange = (value) => {
@@ -303,11 +316,6 @@ class Usermgmt extends Component {
         // this.props.form.setFieldsValue({phone:`${value} `});
         this.setState({code:`${value} `});
     }
-    // normalizePhone = (value,prevValue = []) => {
-    //     if(this.state.code){
-    //         return this.state.code+value
-    //     }
-    // }
     // upload 附件
     normFile = (e) => {
         console.log('Upload event:', e);
@@ -338,8 +346,8 @@ class Usermgmt extends Component {
         });
     };
     render() {
-        const {user,intl} = this.props;
-        const { loading,reloadloading, selectedRowKeys } = this.state;
+        const {intl} = this.props;
+        const { loading,reloadloading, selectedRowKeys,data } = this.state;
         // 表格 Table
         const rowSelection = {
             selectedRowKeys,
@@ -375,10 +383,13 @@ class Usermgmt extends Component {
         return (
             <div className="gutter-example button-demo">
                 <BreadcrumbCustom first={<FormattedMessage id="accounts" />} second={<FormattedMessage id="account.management" />} />
+                <Alert message="温馨提示: 为了保证数据同步的准确性，请在系统内完成开户、更改、删除等账户相关操作" type="success" showIcon={false} closable banner />
                 <Row gutter={16}>
                     <Col className="gutter-row" md={24}>
                         <div className="gutter-box">
-                            <Card title={<FormattedMessage id="account.management" />} bordered={false} >
+                            <Card title={<FormattedMessage id="account.management" />} bordered={false} 
+                            extra={<span><Icon type="retweet" onClick={this.refresh} style={{marginRight:10,color:'#00a8a6',cursor:'pointer'}} />数据更新时间：{this.state.refreshtime}</span>} 
+                            >
                                 <div style={{ marginBottom: 16 }}>
                                     {hasSelected?
                                     <div>
@@ -438,7 +449,7 @@ class Usermgmt extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} />
+                                <Table rowSelection={rowSelection} columns={columns} dataSource={data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} />
                                 <div style={{textAlign:'right',marginTop:20}}>
                                     <Pagination size="small" total={this.state.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
@@ -477,8 +488,7 @@ class Usermgmt extends Component {
                                         <Col span={11}>
                                             <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
                                                 {getFieldDecorator('phone', {
-                                                    rules: [{ required: false, message: '请输入手机号码!' }],
-                                                    normalize:this.normalizePhone
+                                                    rules: [{ required: false, message: '请输入手机号码!' }]
                                                 })(
                                                     <Input addonBefore={inputBefore} placeholder="" />
                                                 )}
@@ -1052,13 +1062,9 @@ class Usermgmt extends Component {
 }
 
 const mapStateToProps = state => {
-    const { user = {data: {}} } = state.httpUser;
     const { code = {data: {}} } = state.httpData;
-    return {user,code};
+    return {code};
 };
 
-const mapDispatchToProps = dispatch => ({
-    receiveUser: bindActionCreators(receiveUser, dispatch)
-});
 
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Usermgmt)));
+export default connect(mapStateToProps)(injectIntl(Form.create()(Accounts)));

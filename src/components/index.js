@@ -33,7 +33,7 @@ import Bwtauser from './user/Bwtauser';
 import CustomersIndex from './custom/CustomersIndex';
 import Sales from './custom/Sales';
 // 账户
-import Accounts from './accounts/Accounts';
+import AccountsIndex from './accounts/AccountsIndex';
 
 const WysiwygBundle = (props) => (
     <Bundle load={Wysiwyg}>
@@ -47,5 +47,5 @@ export default {
     Tabs, Banners, Drags, Dashboard, Gallery, BasicAnimations,
     ExampleAnimations, AuthBasic, RouterEnter, WysiwygBundle,
     Cssmodule, MapUi, Usermgmt, Bwtauser, CustomersIndex, Sales,
-    Accounts
+    AccountsIndex
 }

@@ -1,17 +1,62 @@
 import React,{Component} from 'react';
-import { Form, Row, Col, Card, Tabs, Button, DatePicker, Radio, Input, Icon, Avatar, Popover, Upload, Select, Divider, Drawer, Cascader, Modal, Timeline } from 'antd';
+import { Form, Row, Col, Card, Tabs, Button, DatePicker, Radio, Input, Table, Checkbox,
+    Icon, Avatar, Upload, Select, Cascader, Switch } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
-import {FormattedMessage} from 'react-intl';
+import {FormattedMessage,injectIntl} from 'react-intl';
 import moment from 'moment';
+import { connect } from 'react-redux';
 
 
 const TabPane = Tabs.TabPane;
 const {TextArea} = Input;
 const FormItem = Form.Item;
 const Option = Select.Option;
-const dateFormat = 'YYYY-MM-DD';
-const TimelineItem = Timeline.Item;
-// 级联
+const RadioGroup = Radio.Group;
+const RangePicker = DatePicker.RangePicker;
+const {Column} = Table;
+const CheckboxGroup = Checkbox.Group;
+
+
+// 出入金记录
+const data1 = [{
+    key: '1',
+    time: '2018-08-28 09:12:09',
+    type: 'deposit',
+    number: 'USD 200',
+    notes: 'dfd2018082811'
+}];
+// 持仓
+const data2 = [];
+// 交易历史
+const data3 = [];
+// 挂单
+const data4 = [];
+// 账户所有人资料  
+// 居住地 级联options
+const cascaderOptions = [{
+    value: 'zhejiang',
+    label: 'Zhejiang',
+    children: [{
+      value: 'hangzhou',
+      label: 'Hangzhou',
+      children: [{
+        value: 'xihu',
+        label: 'West Lake',
+      }],
+    }],
+  }, {
+    value: 'jiangsu',
+    label: 'Jiangsu',
+    children: [{
+      value: 'nanjing',
+      label: 'Nanjing',
+      children: [{
+        value: 'zhonghuamen',
+        label: 'Zhong Hua Men',
+      }],
+    }],
+  }];
+// 银行所在地  级联
 const options = [{
     value: 'zhongguo',
     label: '中国',
@@ -38,860 +83,1042 @@ const options = [{
       label: '西雅图市',
     }],
   }];
+//   投资经验
+const experienceoptions = [
+    { label: '股票', value: '1' },
+    { label: '债券', value: '2' },
+    { label: '期货', value: '3' },
+    { label: '期权', value: '4' },
+    { label: '外汇', value: '5' },
+  ];
 
-// this.props.match.params.customerid 动态传参 
+
+// this.props.match.params.accountid 动态传参 
 class CustomersDetail extends Component{
     state = {
         // 修改
         modify:true,
-        // 详细信息展开
-        open:false,
-        // 抽屉
-        visible:false,
-        // 对话框 联系人
-        modalvisible:false,
-        // 对话框 销售机会
-        modalvisible1:false,
+        // 账户所有人资料  修改
+        datamodify:true,
+        // 上传文件
+        fileList: [{
+            uid: '-1',
+            name: 'xxx.png',
+            status: 'done',
+            url: 'https://broker-upload.oss-cn-hangzhou.aliyuncs.com/prod/3c6a17f0-3eec-11e8-9a8b-07bdeefe7e15.png',
+        }],
+        // 出入金  操作类型
+        actiontype:1,
+        // 主密码框类型
+        mainpasswordType:true,
+        // 投资密码框类型
+        investmentpasswordType:true
     };
-    // 详细信息  修改  取消  展开
+    // 详细信息  修改  取消  
     onModify = () => {
         this.setState({modify:false});
     }
     cancelModify = () => {
         this.setState({modify:true});
     }
-    onOpen = () => {
-        this.setState({open:!this.state.open});
-    }
-    // tab  全部活动
+    // tabs  交易记录 账户  杠杆  出入金 信用 重置密码 
     callback = (key) => {
         console.log(key);
     }
-    // 设置下次回访时间
-    onChange = (date,dateString) => {
-        console.log(date,dateString);
+    // 交易记录  时间选择器
+    onChange3 = (dates, dateStrings) => {
+        console.log('From: ', dates[0], ', to: ', dates[1]);
+        console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
     }
-    // 抽屉  查看
-    showDrawer = () => {
-        this.setState({visible:true});
+    // 账户所有人资料
+    // 修改  取消
+    onDataModify = () => {
+        this.setState({datamodify:false});
     }
-    onClose = () => {
-        this.setState({visible: false});
-    };
-    // 对话框 联系人添加
-    showModal = () => {
-        this.setState({modalvisible: true,});
+    cancelDataModify = () => {
+        this.setState({datamodify:true});
     }
-    handleOk = (e) => {
-        console.log(e);
-        this.setState({modalvisible: false,});
+    // 出入金
+    // 操作类型
+    actiontypeChange = (e) => {
+        console.log(e.target.value);
+        this.setState({actiontype: e.target.value,});
+        const {setFieldsValue} = this.props.form;
+        if(e.target.value ===1) setFieldsValue({'wdremarks':'Deposit'});
+        if(e.target.value ===2) setFieldsValue({'wdremarks':'Withdrawal'});
     }
-    handleCancel = (e) => {
-        console.log(e);
-        this.setState({modalvisible: false,});
+    // 信用 类型
+    credittypeChange = (e) => {
+        const {setFieldsValue} = this.props.form;
+        if(e.target.value ===1) setFieldsValue({'creditremarks':'Credit in'});
+        if(e.target.value ===2) setFieldsValue({'creditremarks':'Credit out'});
     }
-    // 对话框 销售机会添加
-    showModal1 = () => {
-        this.setState({modalvisible1: true,});
+    // 重置密码 切换密码框类型
+    switchmainPassword = () => {
+        this.setState({mainpasswordType:!this.state.mainpasswordType})
     }
-    handleOk1 = (e) => {
-        console.log(e);
-        this.setState({modalvisible1: false,});
-    }
-    handleCancel1 = (e) => {
-        console.log(e);
-        this.setState({modalvisible1: false,});
+    switchinvestmentPassword = () => {
+        this.setState({investmentpasswordType:!this.state.investmentpasswordType})
     }
     render(){
+        const {intl} = this.props;
         const formItemLayout = {labelCol: { span: 24,style:{paddingBottom:2} },wrapperCol: { span: 24 }};
-        const formItemLayout1 = {labelCol: { span: 10 },wrapperCol: { span: 14 }};
-        const formItemLayout2 = {labelCol: { span: 5 },wrapperCol: { span: 19 }};
+        const formItemLayout1 = {labelCol: { span: 8 },wrapperCol: { span: 8 }};
+        const formItemLayout2 = {labelCol: { span: 8 },wrapperCol: { span: 16 }};
+        const formItemLayout3 = {labelCol: { span: 4 },wrapperCol: { span: 20 }};
         const { getFieldDecorator } = this.props.form;
         // 手机select
-        const inputBefore = (
+        const {code} = this.props;
+        const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
-                style={{ width: 120 }}
+                disabled={this.state.datamodify}
+                style={{ width: 80 }}
                 placeholder="选择国家/地区代码"
                 optionFilterProp="children"
-                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                disabled={this.state.modify}
+                optionLabelProp="value"
+                dropdownMatchSelectWidth={false}
+                filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
             >
-                <Option value="+86">+86</Option>
-                <Option value="+886">+886</Option>
-                <Option value="+852">+852</Option>
+            {code.map(r=>{
+                return (
+                    <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
+                )
+            })}
             </Select>
         )
-        // 添加联系人 手机
-        const prefixSelector = getFieldDecorator('prefix', {
-            initialValue: '86',
-        })(
-            <Select style={{ width: 70 }}>
-                <Option value="86">+86</Option>
-                <Option value="87">+87</Option>
-            </Select>
-        );
-        const prefixSelector1 = getFieldDecorator('prefix1', {
-            initialValue: '86',
-        })(
-            <Select style={{ width: 70 }}>
-                <Option value="86">+86</Option>
-                <Option value="87">+87</Option>
-            </Select>
-        );
         return(
             <div>
-                <BreadcrumbCustom first={<FormattedMessage id="custom.breadcrumb1" />} second={<FormattedMessage id="custom.breadcrumb2" />} secondlink="/app/custom/customers" third={<FormattedMessage id="custom.breadcrumb3" />} />
+                <BreadcrumbCustom first={<FormattedMessage id="accounts" />} second={<FormattedMessage id="account.management" />} secondlink="/app/accounts" third={<FormattedMessage id="account.detail" />} />
                 <Row gutter={30} className="gutter-box">
-                    <Col md={15}>
-                       <Card bordered={false} style={{marginBottom:15}} >
-                            <Row type="flex" justify="space-between" align="middle">
-                                <Icon type="star-o" style={{fontSize:24,color:'#00a8a6',cursor:'pointer'}} />
-                                <Avatar size={40} icon="user" style={{marginLeft:15}} />
+                    <Col md={9}>
+                       <Card 
+                       bordered={false} 
+                       style={{marginBottom:15}}
+                       title={<Row type="flex" justify="space-between" align="middle">
+                                <Avatar size={40} icon="wallet" style={{backgroundColor: '#00a8a6'}} />
                                 <div style={{flex:1,marginLeft:10}}>
-                                    <p style={{marginTop:0,marginBottom:5}}>{this.props.match.params.customerid}</p>
+                                    <p style={{marginTop:0,marginBottom:5}}>账号：{this.props.match.params.accountid}（结算货币：）</p>
                                     <p style={{marginTop:0,marginBottom:0}}>
-                                        <span style={{marginRight:20}}>归属人：Leslie</span>
-                                        <span style={{marginRight:20}}>参与人：请选择</span>
-                                        <span>创建时间：2018-08-20 15:05:51</span>
+                                        <span style={{marginRight:20}}>返佣用户：Leslie</span>
+                                        <span>账户组：请选择</span>
                                     </p>
                                 </div>
-                                <div style={{color:'#00a8a6'}}>客户状态：开户客户
-                                    <Popover content={<div style={{maxWidth:200}}>客户状态分为销售线索、潜在客户、开户客户、入金客户和交易客户。</div>}><Icon type="question-circle" style={{marginLeft:10,color:'#00a8a6'}} /></Popover>
-                                </div>
-                            </Row>
+                            </Row>}
+                       >
+                            <table className="money_table">
+                                <tbody>
+                                    <tr>
+                                        <th>余额：</th>
+                                        <td>0</td>
+                                        <th>信用额：</th>
+                                        <td>0</td>
+                                    </tr>
+                                    <tr>
+                                        <th>浮动盈亏：</th>
+                                        <td>0</td>
+                                        <th>净值：</th>
+                                        <td>0</td>
+                                    </tr>
+                                    <tr>
+                                        <th>已用保证金：</th>
+                                        <td>0</td>
+                                        <th>可用保证金：</th>
+                                        <td>0</td>
+                                    </tr>
+                                    <tr>
+                                        <th>保证金比例：</th>
+                                        <td>0</td>
+                                        <th>创建时间：</th>
+                                        <td>2018-08-28 08:41:22</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                        </Card>
                        <Card 
-                            title={<div><Avatar shape="square" icon="user" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>详细信息</span></div>} 
+                            title={<div><Icon type="pay-circle" style={{marginRight:10,color: '#00a8a6',fontSize:24,verticalAlign:'middle'}} /><span style={{verticalAlign:'middle'}}>账户信息</span></div>} 
                             extra={this.state.modify&&<a href=" javascript:void(0)" style={{verticalAlign:'middle'}} onClick={this.onModify}><Icon type="form" />修改</a>} 
                             bordered={false} 
                             style={{marginBottom:15}}
-                            className={this.state.modify&&'disabledcard'}
-                            actions={[<a href=" javascript:void(0)" style={{fontSize:14,color:'#00a8a6'}} onClick={this.onOpen}><Icon type={this.state.open?'up-circle':'down-circle'} style={{marginRight:6,fontSize:15}} />{this.state.open?'收起更多':'展开全部'}</a>]}
-                       >
-                            <Row gutter={50}>
-                                <Col span={12}>
-                                    <FormItem {...formItemLayout} label="Client Status" style={{marginBottom:10}}>
-                                        {getFieldDecorator('clientstatus', {
-                                            rules: [{ required: true, message: 'Client Status is required' }],
-                                        })(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="Sales Leads">Sales Leads</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Customer No" style={{marginBottom:10}}>
-                                        <Input placeholder="" disabled={this.state.modify} />
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Participant" style={{marginBottom:10}}>
-                                        {getFieldDecorator('participant', {
-                                            rules: [{ required: false, message: '' }],
-                                        })(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="Sales Leads">Sales Leads</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Customer Level" style={{marginBottom:10}}>
-                                        {getFieldDecorator('customerlevel', {
-                                            rules: [{ required: false, message: '' }],
-                                        })(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="High">High</Option>
-                                                <Option value="Middle">Middle</Option>
-                                                <Option value="Low">Low</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="People Count" style={{marginBottom:5}}>
-                                        {getFieldDecorator('peoplecount', {
-                                            rules: [{ required: false, message: '' }],
-                                        })(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="Below 20">Below 20</Option>
-                                                <Option value="20-99 man">20-99 man</Option>
-                                                <Option value="100-500 man">100-500 man</Option>
-                                                <Option value="More than 500">More than 500</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
-                                        {getFieldDecorator('phone', {
-                                            rules: [{ required: false, message: '请输入手机号码!' }],
-                                        })(
-                                            <Input addonBefore={inputBefore} placeholder="" disabled={this.state.modify} />
-                                        )}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="IM" style={{marginBottom:10}}>
-                                        {getFieldDecorator('IM')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Fax" style={{marginBottom:10}}>
-                                        {getFieldDecorator('fax')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Other contacts" style={{marginBottom:10}}>
-                                        {getFieldDecorator('othercontacts')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                </Col>
-                                <Col span={12}>
-                                    <FormItem {...formItemLayout} label="Customer Name" style={{marginBottom:10}}>
-                                        {getFieldDecorator('customername', {
-                                            rules: [{ required: true, message: 'Customer Name is required' }],
-                                        })(
-                                            <Input placeholder="" disabled={this.state.modify} />
-                                        )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Principal owner" style={{marginBottom:10}}>
-                                        {getFieldDecorator('owner')(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="Sandy">Sandy</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>
-                                    <FormItem {...formItemLayout} label="Customer Type" style={{marginBottom:10}}>
-                                        {getFieldDecorator('customertype')(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="Straight off">Straight off</Option>
-                                                <Option value="agent">agent</Option>
-                                                <Option value="VIP">VIP</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Customer source" style={{marginBottom:10}}>
-                                        {getFieldDecorator('source')(
-                                            <Select style={{ width: '100%' }} disabled={this.state.modify} >
-                                                <Option value="official website registration">official website registration</Option>
-                                                <Option value="list data">list data</Option>
-                                                <Option value="customer introduction">customer introduction</Option>
-                                                <Option value="Intermediary">Intermediary</Option>
-                                                <Option value="offline activities">offline activities</Option>
-                                                <Option value="new sales">new sales</Option>
-                                            </Select>
-                                        )}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Introducer" style={{marginBottom:10}}>
-                                        {getFieldDecorator('introducer')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Email" style={{marginBottom:10}}>
-                                        {getFieldDecorator('email', {
-                                            rules: [{ required: true, message: 'Email is required' }],
-                                        })(
-                                            <Input placeholder="" disabled={this.state.modify} />
-                                        )}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Social" style={{marginBottom:10}}>
-                                        {getFieldDecorator('social')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Site" style={{marginBottom:10}}>
-                                        {getFieldDecorator('site')(<Input disabled={this.state.modify} />)}
-                                    </FormItem>}
-                                    {this.state.open&&<FormItem {...formItemLayout} label="Attachment" style={{marginBottom:10}}>
-                                        {getFieldDecorator('attachment', {
-                                                valuePropName: 'fileList',
-                                                getValueFromEvent: this.normFile,
-                                            })(
-                                            <Upload name="logo" action="/upload.do" listType="picture" disabled={this.state.modify}>
-                                                <Button><Icon type="upload" /> Click to upload</Button>
-                                            </Upload>
-                                        )}
-                                    </FormItem>}
-                                </Col>
-                                <Col span={24}>
-                                    {this.state.open&&<FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
-                                        {getFieldDecorator('remarks', {
-                                            rules: [{ required: false, message: '请输入备注!' }],
-                                        })(
-                                            <TextArea rows={3} disabled={this.state.modify} />
-                                        )}
-                                    </FormItem>}
-                                </Col>  
-                            </Row>
+                            className={this.state.modify&&'disabledcard1'}
+                       >    
+                            <FormItem {...formItemLayout} label="MT组" style={{marginBottom:10}}>
+                                {getFieldDecorator('mtgroup', {
+                                    rules: [{ required: true, message: '请选择' }],
+                                })(
+                                    <Select 
+                                    showSearch 
+                                    style={{ width: '100%' }} 
+                                    disabled={this.state.modify} 
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        <Option value="1">GQ-50-Offset-00</Option>
+                                        <Option value="2">GQ-50-Offset-10</Option>
+                                        <Option value="3">GQ-50-Offset-20</Option>
+                                        <Option value="4">GQ-50-Offset-30</Option>
+                                        <Option value="5">.....</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="杠杆" style={{marginBottom:10}}>
+                                {getFieldDecorator('lever', {
+                                    rules: [{ required: true, message: '' }],
+                                })(
+                                    <Select style={{ width: '100%' }} disabled={this.state.modify} >
+                                        <Option value="1">1:1</Option>
+                                        <Option value="2">1:2</Option>
+                                        <Option value="3">1:3</Option>
+                                        <Option value="4">.....</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="交易状态" style={{marginBottom:5}}>
+                                {getFieldDecorator('tradingstate', {
+                                    rules: [{ required: true, message: '' }],
+                                    initialValue:1
+                                })(
+                                    <RadioGroup disabled={this.state.modify}>
+                                        <Radio value={1}>启用</Radio>
+                                        <Radio value={2}>禁用</Radio>
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="登录状态" style={{marginBottom:5}}>
+                                {getFieldDecorator('loginstate', {
+                                    rules: [{ required: true, message: '' }],
+                                    initialValue:1
+                                })(
+                                    <RadioGroup disabled={this.state.modify}>
+                                        <Radio value={1}>启用</Radio>
+                                        <Radio value={2}>禁用</Radio>
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="发送报告" style={{marginBottom:10}}>
+                                {getFieldDecorator('report')(<Switch disabled={this.state.modify} />)}
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="Lead source" style={{marginBottom:10}}>
+                                {getFieldDecorator('leadsource')(<Input disabled={this.state.modify} />)}
+                            </FormItem>
                             {this.state.modify||<div style={{textAlign:'right'}}>
                                 <Button type="primary">保存</Button><Button onClick={this.cancelModify}>取消</Button>
                             </div>}
                        </Card>
-                       <Card 
-                            title={<div><Avatar shape="square" icon="wallet" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>交易账户</span></div>} 
-                            bordered={false} 
-                            style={{marginBottom:15}}
-                       >
-                            <Row style={{border:'1px solid #ddd',backgroundColor:'#fafafa',borderRadius:4,padding:10,marginBottom:20}} >
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>账号：</span><span>3453446</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>余额：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>已用保证金：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>首次入金时间：</span><span>无</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>杠杆：</span><span>1:200</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>净值：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>可用保证金：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6,marginBottom:6}}>
-                                    <span>创建时间：</span><span>2018-08-20 14:23:12</span>
-                                </Col>
-                                <Divider dashed style={{margin:0}} />
-                                <Col span={12} style={{marginTop:6}}><span>持仓单：</span><span>0</span></Col>
-                                <Col span={12} style={{marginTop:6}}><span>挂单：</span><span>0</span></Col>
-                            </Row>
-                            <Row style={{border:'1px solid #ddd',backgroundColor:'#fafafa',borderRadius:4,padding:10}} >
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>账号：</span><span>3453446</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>余额：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>已用保证金：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>首次入金时间：</span><span>无</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>杠杆：</span><span>1:200</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>净值：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                    <span>可用保证金：</span><span>$ 0</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6,marginBottom:6}}>
-                                    <span>创建时间：</span><span>2018-08-20 14:23:12</span>
-                                </Col>
-                                <Divider dashed style={{margin:0}} />
-                                <Col span={12} style={{marginTop:6}}><span>持仓单：</span><span>0</span></Col>
-                                <Col span={12} style={{marginTop:6}}><span>挂单：</span><span>0</span></Col>
-                            </Row>
-                       </Card>
-                       <Card 
-                            title={<div><Avatar shape="square" icon="wallet" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>账户所有人资料<Popover content={<div style={{maxWidth:200}}>账户所有人资料，是用于交易者开户审核合规性的信息。</div>}><Icon type="question-circle" style={{marginLeft:10,color:'#00a8a6'}} /></Popover></span></div>} 
-                            bordered={false} 
-                            extra={<Button style={{verticalAlign:'middle'}} size="small" type="primary" ghost onClick={this.showDrawer}>查看</Button>} 
-                            style={{marginBottom:15}}
-                            headStyle={{border:'none'}}
-                            bodyStyle={{display:'none'}}
-                       />
-                       <Card title={<div><Avatar shape="square" icon="solution" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>Trader Work登录用户（已注册）</span></div>} 
-                            bordered={false} 
-                            style={{marginBottom:15}}
-                       >
-                            <Row style={{paddingLeft:10,paddingRight:10}}>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>姓名：</span><span>dddd</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>电话：</span><span>13524215142</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>用户名：</span><span>3</span>
-                                </Col>
-                                <Col span={12} style={{marginTop:6}}>
-                                   <span>邮箱：</span><span>23</span>
-                                </Col>
-                            </Row>
-                       </Card>
-                       <Card title={<div><Avatar shape="square" icon="contacts" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>联系人（0）</span></div>} 
-                            bordered={false} 
-                            style={{marginBottom:15}} 
-                            extra={<Button style={{verticalAlign:'middle'}} size="small" type="primary" ghost onClick={this.showModal}>添加</Button>} 
-                            headStyle={{border:'none'}}
-                            bodyStyle={{display:'none'}}
-                       />
-                       <Card title={<div><Avatar shape="square" icon="pay-circle-o" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>销售机会（0）</span></div>} 
-                            bordered={false} 
-                            style={{marginBottom:15}} 
-                            extra={<Button style={{verticalAlign:'middle'}} size="small" type="primary" ghost onClick={this.showModal1}>添加</Button>} 
-                            headStyle={{border:'none'}}
-                            bodyStyle={{display:'none'}}
-                       />
                     </Col>
-                    <Col md={9}>
-                       <Card title="客户信息" bordered={false} style={{marginBottom:15}} actions={[<div><Button type="primary">确认</Button><Button>取消</Button></div>,<DatePicker onChange={this.onChange} placeholder="设置下次回访时间" />]} >
-                            <p style={{marginTop:0,marginBottom:5}}>跟进方式：</p>
-                            <Radio.Group defaultValue="a" buttonStyle="solid">
-                                <Radio.Button value="a">面谈</Radio.Button>
-                                <Radio.Button value="b">电话</Radio.Button>
-                                <Radio.Button value="c">即时通讯</Radio.Button>
-                                <Radio.Button value="d">电子邮件</Radio.Button>
-                                <Radio.Button value="e">其他</Radio.Button>
-                            </Radio.Group>
-                            <p style={{marginTop:15,marginBottom:5}}>跟进内容：</p>
-                            <TextArea rows={3} />
-                       </Card>
-                       <Tabs defaultActiveKey="1" onChange={this.callback}>
-                           <TabPane tab="全部活动" key="1">Pane1</TabPane>
-                           <TabPane tab="操作记录" key="2">Pane2</TabPane>
-                           <TabPane tab="交易记录" key="3">
-                                <Timeline mode="left">
-                                    <TimelineItem color="red">2015-09-01</TimelineItem>
-                                    <TimelineItem>
-                                        <div style={{backgroundColor:'#fff',padding:15,borderRadius:4}}>
-                                                <span style={{marginRight:20}}>账号：32512</span>            
-                                                <span>交易了一笔订单</span>
-                                                <div>(UTC+8)2018/08/21 15:33</div>
-                                                <Row style={{backgroundColor:'#fafafa',border:'1px solid #ddd',padding:10,marginTop:10,borderRadius:4}}>
-                                                    <Col span={12}>
-                                                        <span>订单号：</span>
-                                                        <span>2956415</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>类型：</span>
-                                                        <span>sell</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>品种：</span>
-                                                        <span>EURUSD</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>交易量：</span>
-                                                        <span>0.5</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>盈亏：</span>
-                                                        <span>30</span>
-                                                    </Col>
-                                                </Row>
-                                        </div>
-                                    </TimelineItem>
-                                    <TimelineItem>
-                                        <div style={{backgroundColor:'#fff',padding:15,borderRadius:4}}>
-                                                <span style={{marginRight:20}}>账号：32512</span>            
-                                                <span>交易了一笔订单</span>
-                                                <div>(UTC+8)2018/08/21 15:33</div>
-                                                <Row style={{backgroundColor:'#fafafa',border:'1px solid #ddd',padding:10,marginTop:10,borderRadius:4}}>
-                                                    <Col span={12}>
-                                                        <span>订单号：</span>
-                                                        <span>2956415</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>类型：</span>
-                                                        <span>sell</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>品种：</span>
-                                                        <span>EURUSD</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>交易量：</span>
-                                                        <span>0.5</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>盈亏：</span>
-                                                        <span>30</span>
-                                                    </Col>
-                                                </Row>
-                                        </div>
-                                    </TimelineItem>
-                                    <TimelineItem color="red">2015-09-01</TimelineItem>
-                                    <TimelineItem>
-                                        <div style={{backgroundColor:'#fff',padding:15,borderRadius:4}}>
-                                                <span style={{marginRight:20}}>账号：32512</span>            
-                                                <span>交易了一笔订单</span>
-                                                <div>(UTC+8)2018/08/21 15:33</div>
-                                                <Row style={{backgroundColor:'#fafafa',border:'1px solid #ddd',padding:10,marginTop:10,borderRadius:4}}>
-                                                    <Col span={12}>
-                                                        <span>订单号：</span>
-                                                        <span>2956415</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>类型：</span>
-                                                        <span>sell</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>品种：</span>
-                                                        <span>EURUSD</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>交易量：</span>
-                                                        <span>0.5</span>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <span>盈亏：</span>
-                                                        <span>30</span>
-                                                    </Col>
-                                                </Row>
-                                        </div>
-                                    </TimelineItem>
-                                </Timeline>
-                           </TabPane>
-                           <TabPane tab="跟进记录" key="4">Pane4</TabPane>
-                       </Tabs>
+                    <Col md={15}>
+                        <Card bordered={false} style={{marginBottom:15}} >
+                            <Tabs defaultActiveKey="1" onChange={this.callback}>
+                                <TabPane key="1" tab="交易记录">
+                                    <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
+                                    <div>
+                                        <div className="table_title">出入金记录（{data1.length}）</div>
+                                        <Table size="middle" dataSource={data1}>
+                                            <Column
+                                                title="时间（UTC-3）"
+                                                dataIndex="time"
+                                                key="time"
+                                                sorter= {(a,b) => a.time - b.time}
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="操作类型"
+                                                dataIndex="type"
+                                                key="type"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="数量"
+                                                dataIndex="number"
+                                                key="number"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="注释"
+                                                dataIndex="notes"
+                                                key="notes"
+                                                align="center"
+                                            />
+                                        </Table>
+                                        <div className="table_title">持仓（{data2.length}）</div>
+                                        <Table size="middle" dataSource={data2}>
+                                            <Column
+                                                title="开仓时间（UTC-3）"
+                                                dataIndex="time"
+                                                key="time"
+                                                sorter= {(a,b) => a.time - b.time}
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="订单号"
+                                                dataIndex="ordernumber"
+                                                key="ordernumber"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="类型"
+                                                dataIndex="type"
+                                                key="type"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="品种"
+                                                dataIndex="variety"
+                                                key="variety"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="交易量"
+                                                dataIndex="number"
+                                                key="number"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="浮动盈亏"
+                                                dataIndex="floating"
+                                                key="floating"
+                                                align="center"
+                                            />
+                                        </Table>
+                                        <div className="table_title">交易历史（{data3.length}）</div>
+                                        <Table size="middle" dataSource={data3}>
+                                            <Column
+                                                title="平仓时间（UTC-3）"
+                                                dataIndex="time"
+                                                key="time"
+                                                sorter= {(a,b) => a.time - b.time}
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="订单号"
+                                                dataIndex="ordernumber"
+                                                key="ordernumber"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="类型"
+                                                dataIndex="type"
+                                                key="type"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="品种"
+                                                dataIndex="variety"
+                                                key="variety"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="交易量"
+                                                dataIndex="number"
+                                                key="number"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="盈亏"
+                                                dataIndex="pl"
+                                                key="pl"
+                                                align="center"
+                                            />
+                                        </Table>
+                                        <div className="table_title">挂单（{data4.length}）</div>
+                                        <Table size="middle" dataSource={data4}>
+                                            <Column
+                                                title="挂单时间（UTC-3）"
+                                                dataIndex="time"
+                                                key="time"
+                                                sorter= {(a,b) => a.time - b.time}
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="订单号"
+                                                dataIndex="ordernumber"
+                                                key="ordernumber"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="类型"
+                                                dataIndex="type"
+                                                key="type"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="品种"
+                                                dataIndex="variety"
+                                                key="variety"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="挂单价"
+                                                dataIndex="price"
+                                                key="price"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="交易量"
+                                                dataIndex="number"
+                                                key="number"
+                                                align="center"
+                                            />
+                                            <Column
+                                                title="执行/取消时间"
+                                                dataIndex="actiontime"
+                                                key="actiontime"
+                                                align="center"
+                                            />
+                                        </Table>
+                                    </div>
+                                </TabPane>
+                                <TabPane key="2" tab="账户所有人资料">
+                                    <Card
+                                    type="inner"
+                                    bordered={false}
+                                    >
+                                        <FormItem {...formItemLayout} label="所属客户" style={{marginBottom:0,textAlign:'left'}}>
+                                            {getFieldDecorator('ownercustomer', {
+                                                rules: [{ required: false, message: '请选择客户' }],
+                                            })(
+                                                <Select
+                                                    showSearch
+                                                    style={{ width: 200 }}
+                                                    placeholder="输入客户编号/客户名称搜索"
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}  
+                                                >
+                                                <Option value="1">选项1</Option>
+                                                <Option value="2">....</Option>
+                                                </Select>
+                                                /* 远程搜索option项 */
+                                            )}
+                                        </FormItem>
+                                    </Card>
+                                    <Card 
+                                    type="inner" 
+                                    title="账户所有人资料"
+                                    bordered={false}
+                                    extra={this.state.datamodify&&<a href=" javascript:void(0)" style={{verticalAlign:'middle'}} onClick={this.onDataModify}><Icon type="form" />修改</a>} 
+                                    className={this.state.datamodify&&'disabledcard1'}
+                                    >
+                                        <Form hideRequiredMark>
+                                            <Row gutter={50}>
+                                                <Col span={12}>
+                                                    <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
+                                                        {getFieldDecorator('phone', {
+                                                            rules: [{ required: false, message: '请输入手机号码!' }]
+                                                        })(
+                                                            <Input addonBefore={inputBefore} placeholder="" disabled={this.state.datamodify} />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem {...formItemLayout} label="即时通讯" style={{marginBottom:10}}>
+                                                        {getFieldDecorator('IM')(<Input disabled={this.state.datamodify} />)}
+                                                    </FormItem>
+                                                </Col>
+                                                <Col span={12}>
+                                                    <FormItem {...formItemLayout} label="Email" style={{marginBottom:10}}>
+                                                        {getFieldDecorator('email', {
+                                                            rules: [{ required: true, message: 'Email is required' }],
+                                                        })(
+                                                            <Input placeholder="" disabled={this.state.datamodify} />
+                                                        )}
+                                                    </FormItem>
+                                                </Col>
+                                            </Row>
+                                            <Tabs defaultActiveKey="1">
+                                                <TabPane key="1" tab="基本资料">
+                                                    <Row gutter={50}>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="姓名" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('name', {
+                                                                    rules: [{ required: true, message: '请填写姓名' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="出生年月" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('birth', {
+                                                                    rules: [{ required: true, message: '请选择日期' }],
+                                                                })(
+                                                                    <DatePicker style={{width:'100%'}} disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="居住地" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('residence', {
+                                                                    rules: [{ required: true, message: '' }],
+                                                                })(
+                                                                    <Cascader disabled={this.state.datamodify} options={cascaderOptions} onChange={this.cascaderChange} placeholder="Please select" />
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="性别" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('sex', {
+                                                                    rules: [{ required: true, message: '请选择性别' }],
+                                                                })(
+                                                                    <Select disabled={this.state.datamodify}>
+                                                                        <Option value="0">男</Option>
+                                                                        <Option value="1">女</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="国家和地区" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('country', {
+                                                                    rules: [{required:true,message:'请选择国家和地区'}]
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">中国大陆</Option>
+                                                                        <Option value="1">中国香港</Option>
+                                                                        <Option value="2">中国台湾</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="邮编" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('zip',{
+                                                                    rules:[{required:true,message:'请填写邮编'}]
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            <FormItem {...formItemLayout} label="详细地址" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('address', {
+                                                                    rules: [{ required: true, message: '请填写详细地址!' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('basicremarks', {
+                                                                    rules: [{ required: false, message: '请输入备注!' }],
+                                                                })(
+                                                                    <TextArea rows={3} disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>  
+                                                    </Row>
+                                                </TabPane>
+                                                <TabPane key="2" tab="财务信息">
+                                                    <Row gutter={50}>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="总资产" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('totalassets', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">0-500000</Option>
+                                                                        <Option value="1">500001-1000000</Option>
+                                                                        <Option value="2">1000001-1500000</Option>
+                                                                        <Option value="3">1500001-2000000</Option>
+                                                                        <Option value="4">2000001-5000000</Option>
+                                                                        <Option value="5">5000001-7500000</Option>
+                                                                        <Option value="6">7500001-10000000</Option>
+                                                                        <Option value="7">10000001-20000000</Option>
+                                                                        <Option value="8">20000001-30000000</Option>
+                                                                        <Option value="9">30000001-50000000</Option>
+                                                                        <Option value="10">&gt;50000000</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="收入来源" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('sourceofincome', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">工资储蓄</Option>
+                                                                        <Option value="1">版税</Option>
+                                                                        <Option value="2">遗产</Option>
+                                                                        <Option value="3">交易利润</Option>
+                                                                        <Option value="4">其他</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="投资年数" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('years', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">0~5</Option>
+                                                                        <Option value="1">5~10</Option>
+                                                                        <Option value="2">10~20</Option>
+                                                                        <Option value="3">&gt;20</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="投资目的" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('investmentpurpose', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="开户银行" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('openbank', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">中国银行</Option>
+                                                                        <Option value="1">中国农业银行</Option>
+                                                                        <Option value="2">中国建设银行</Option>
+                                                                        <Option value="3">国家开发银行</Option>
+                                                                        <Option value="4">中国进出口银行</Option>
+                                                                        <Option value="5">....</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="银行账号" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('bankaccount', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="你是否有至少2个月的交易经验" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('twomonths', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify} >
+                                                                        <Option value="0">是</Option>
+                                                                        <Option value="1">否</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="请提供可以帮助您理解我们服务的专业经验和背景" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('provide', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">具有金融机构的相关工作经验</Option>
+                                                                        <Option value="1">具有金融相关的教育背景和专业资质</Option>
+                                                                        <Option value="2">没有</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="净资产" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('netassets', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">0-500000</Option>
+                                                                        <Option value="1">500001-1000000</Option>
+                                                                        <Option value="2">1000001-1500000</Option>
+                                                                        <Option value="3">1500001-2000000</Option>
+                                                                        <Option value="4">2000001-5000000</Option>
+                                                                        <Option value="5">5000001-7500000</Option>
+                                                                        <Option value="6">7500001-10000000</Option>
+                                                                        <Option value="7">10000001-20000000</Option>
+                                                                        <Option value="8">20000001-30000000</Option>
+                                                                        <Option value="9">30000001-50000000</Option>
+                                                                        <Option value="10">&gt;50000000</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="投资经验" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('investmentexperience', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                    initialValue:['1']
+                                                                })(
+                                                                    <CheckboxGroup disabled={this.state.datamodify} options={experienceoptions} onChange={this.experienceChange} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="知识水平" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('knowlevel', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">小学</Option>
+                                                                        <Option value="1">初中</Option>
+                                                                        <Option value="2">高中</Option>
+                                                                        <Option value="3">大专</Option>
+                                                                        <Option value="4">本科</Option>
+                                                                        <Option value="5">研究生</Option>
+                                                                        <Option value="6">硕士研究生</Option>
+                                                                        <Option value="7">博士研究生</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="投资额度" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('investmentquota', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select style={{ width: '100%' }} disabled={this.state.datamodify}>
+                                                                        <Option value="0">0-500000</Option>
+                                                                        <Option value="1">500001-1000000</Option>
+                                                                        <Option value="2">1000001-1500000</Option>
+                                                                        <Option value="3">1500001-2000000</Option>
+                                                                        <Option value="4">2000001-5000000</Option>
+                                                                        <Option value="5">5000001-7500000</Option>
+                                                                        <Option value="6">7500001-10000000</Option>
+                                                                        <Option value="7">10000001-20000000</Option>
+                                                                        <Option value="8">20000001-30000000</Option>
+                                                                        <Option value="9">30000001-50000000</Option>
+                                                                        <Option value="10">&gt;50000000</Option>
+                                                                    </Select>
+                                                                )} 
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="银行所在地" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('banklocation', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                    initialValue:['zhongguo','jiangxi','jiujiang']
+                                                                })(
+                                                                    <Cascader disabled={this.state.datamodify} options={options} placeholder="Please select" style={{width:'100%'}} />
+                                                                )}  
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="银行支行" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('bankbranch', {
+                                                                    rules: [{ required: true, message: '请填写银行支行' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )} 
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="过去三年，你曾经通过一个类似的机构，交易过OTC的保证金外汇或CFD交易么" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('3years', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select disabled={this.state.datamodify}>
+                                                                        <Option value="0">是</Option>
+                                                                        <Option value="1">否</Option>
+                                                                    </Select>
+                                                                )} 
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="在过去的12个月内，您是否至少交易过20次？" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('20times', {
+                                                                    rules: [{ required: true, message: '请选择' }],
+                                                                })(
+                                                                    <Select disabled={this.state.datamodify}>
+                                                                        <Option value="0">是</Option>
+                                                                        <Option value="1">否</Option>
+                                                                    </Select>
+                                                                )} 
+                                                            </FormItem>
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('financeremarks')(
+                                                                    <TextArea rows={3} disabled={this.state.datamodify} />
+                                                                )} 
+                                                            </FormItem>
+                                                        </Col>  
+                                                    </Row> 
+                                                </TabPane>
+                                                <TabPane key="3" tab="证件信息">
+                                                    <Row gutter={50}>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="身份证明类型" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('cardtype', {
+                                                                    rules: [{ required: true, message: '请选择身份证明类型!' }],
+                                                                })(
+                                                                    <Select style={{width:'100%'}} disabled={this.state.datamodify}>
+                                                                        <Option value="1">营业执照</Option>
+                                                                        <Option value="2">组织机构代码证</Option>
+                                                                        <Option value="3">税务登记证</Option>
+                                                                        <Option value="4">商业登记证</Option>
+                                                                        <Option value="5">身份证</Option>
+                                                                        <Option value="6">户口簿</Option>
+                                                                        <Option value="7">护照</Option>
+                                                                        <Option value="8">军官证</Option>
+                                                                        <Option value="9">士兵证</Option>
+                                                                        <Option value="10">香港居民来往内地通行证</Option>
+                                                                        <Option value="11">台湾居民来往内地通行证</Option>
+                                                                        <Option value="12">外国人居留证</Option>
+                                                                        <Option value="13">警官证</Option>
+                                                                        <Option value="14">驾驶证</Option>
+                                                                        <Option value="15">其他证件</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="身份证明A" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('carda', {
+                                                                        valuePropName: 'fileList',
+                                                                        getValueFromEvent: this.normFile,
+                                                                        initialValue:this.state.fileList,
+                                                                        rules: [{ required: true, message: '请上传!' }],
+                                                                    })(
+                                                                    <Upload 
+                                                                    disabled={this.state.datamodify}
+                                                                    name="logo" 
+                                                                    action="https://www.easy-mock.com/mock/5b6a978b91ff8e254d62047e/crm/upload" 
+                                                                    accept="image/*" 
+                                                                    listType="picture"
+                                                                    onPreview={this.uploadPreview} 
+                                                                    >
+                                                                        <Button>
+                                                                        <Icon type="upload" /> Click to upload
+                                                                        </Button>
+                                                                    </Upload>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="银行卡证明A" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('banka', {
+                                                                        valuePropName: 'fileList',
+                                                                        getValueFromEvent: this.normFile,
+                                                                        initialValue:this.state.fileList,
+                                                                        rules: [{ required: true, message: '请上传!' }],
+                                                                    })(
+                                                                    <Upload 
+                                                                    disabled={this.state.datamodify}
+                                                                    name="logo" 
+                                                                    action="https://www.easy-mock.com/mock/5b6a978b91ff8e254d62047e/crm/upload" 
+                                                                    accept="image/*" 
+                                                                    listType="picture"
+                                                                    onPreview={this.uploadPreview} 
+                                                                    >
+                                                                        <Button>
+                                                                        <Icon type="upload" /> Click to upload
+                                                                        </Button>
+                                                                    </Upload>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="手持身份证" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('handcard', {
+                                                                    rules: [{ required: true, message: '请选择!' }],
+                                                                })(
+                                                                    <Select style={{width:'100%'}} disabled={this.state.datamodify}>
+                                                                        <Option value="1">手持身份证</Option>
+                                                                    </Select>
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>
+                                                        <Col span={12}>
+                                                            <FormItem {...formItemLayout} label="身份证明号码" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('cardnumber', {
+                                                                    rules: [{ required: true, message: '请填写!' }],
+                                                                })(
+                                                                    <Input disabled={this.state.datamodify} />
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="身份证明B" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('cardb', {
+                                                                        valuePropName: 'fileList',
+                                                                        getValueFromEvent: this.normFile,
+                                                                        initialValue:this.state.fileList,
+                                                                        rules: [{ required: true, message: '请上传!' }],
+                                                                    })(
+                                                                    <Upload 
+                                                                    disabled={this.state.datamodify}
+                                                                    name="logo" 
+                                                                    action="https://www.easy-mock.com/mock/5b6a978b91ff8e254d62047e/crm/upload" 
+                                                                    accept="image/*" 
+                                                                    listType="picture"
+                                                                    onPreview={this.uploadPreview} 
+                                                                    >
+                                                                        <Button>
+                                                                        <Icon type="upload" /> Click to upload
+                                                                        </Button>
+                                                                    </Upload>
+                                                                )}
+                                                            </FormItem>
+                                                            <FormItem {...formItemLayout} label="银行卡证明B" style={{marginBottom:10}}>
+                                                                {getFieldDecorator('bankb', {
+                                                                        valuePropName: 'fileList',
+                                                                        getValueFromEvent: this.normFile,
+                                                                        initialValue:this.state.fileList,
+                                                                        rules: [{ required: true, message: '请上传!' }],
+                                                                    })(
+                                                                    <Upload 
+                                                                    disabled={this.state.datamodify}
+                                                                    name="logo" 
+                                                                    action="https://www.easy-mock.com/mock/5b6a978b91ff8e254d62047e/crm/upload" 
+                                                                    accept="image/*" 
+                                                                    listType="picture"
+                                                                    onPreview={this.uploadPreview} 
+                                                                    >
+                                                                        <Button>
+                                                                        <Icon type="upload" /> Click to upload
+                                                                        </Button>
+                                                                    </Upload>
+                                                                )}
+                                                            </FormItem>
+                                                        </Col>
+                                                    </Row> 
+                                                </TabPane>
+                                            </Tabs>
+                                            {this.state.datamodify||<div style={{textAlign:'right'}}>
+                                                <Button type="primary">保存</Button><Button onClick={this.cancelDataModify}>取消</Button>
+                                            </div>}
+                                        </Form>
+                                    </Card>
+                                </TabPane>
+                                <TabPane key="3" tab="杠杆">
+                                    <Form>
+                                        <Row>
+                                            <Col>
+                                                <FormItem {...formItemLayout1} label="修改杠杆" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('amendlever', {
+                                                        rules: [{ required: true, message: '请选择杠杆!' }],
+                                                        initialValue:'4'
+                                                    })(
+                                                        <Select>
+                                                            <Option value="1">1:1</Option>
+                                                            <Option value="2">1:2</Option>
+                                                            <Option value="3">1:3</Option>
+                                                            <Option value="4">1:200</Option>
+                                                            <Option value="5">....</Option>
+                                                        </Select>
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout1} label="发送修改杠杆邮件" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('emailforlever')(<Switch />)}
+                                                </FormItem>
+                                            </Col>
+                                            <Col offset={8}><Button type="primary">保存</Button></Col>
+                                        </Row> 
+                                    </Form>
+                                </TabPane>
+                                <TabPane key="4" tab="出入金">
+                                    <Form>
+                                        <Row>
+                                            <Col span={12}>
+                                                <FormItem {...formItemLayout2} label="操作类型" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('actiontype', {
+                                                        rules: [{ required: true, message: '请选择操作类型!' }],
+                                                        initialValue:1
+                                                    })(
+                                                        <RadioGroup onChange={this.actiontypeChange}>
+                                                            <Radio value={1}>入金</Radio>
+                                                            <Radio value={2}>出金</Radio>
+                                                        </RadioGroup>
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout2} label="金额" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('money', {
+                                                        rules: [{ required: true, message: '请填写金额!' }]
+                                                    })(
+                                                        <Input />
+                                                    )}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={12}>
+                                                <FormItem {...formItemLayout2} label={this.state.actiontype === 1?"入金类型":"出金类型"} style={{marginBottom:10}}>
+                                                    {getFieldDecorator('withdrawaldeposittype', {
+                                                        rules: [{ required: false, message: '请选择出入金类型!' }]
+                                                    })(
+                                                        this.state.actiontype ===1?<Select>
+                                                            <Option value="1">任务入金</Option>
+                                                            <Option value="2">返佣入金</Option>
+                                                            <Option value="3">任务转账入金</Option>
+                                                            <Option value="4">其他入金类型</Option>
+                                                            <Option value="5">外佣入金</Option>
+                                                            <Option value="6">赠金入金</Option>
+                                                            <Option value="7">清零入金</Option>
+                                                        </Select>:<Select>
+                                                            <Option value="1">任务出金</Option>
+                                                            <Option value="2">任务转账出金</Option>
+                                                            <Option value="3">其他出金类型</Option>
+                                                            <Option value="4">代理商返佣&佣金出金</Option>
+                                                        </Select>  
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout2} label="发送出入金邮件" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('emailforwd')(<Switch />)}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={24}>
+                                                <FormItem {...formItemLayout3} label="备注" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('wdremarks',{
+                                                        initialValue:this.state.actiontype?'Deposit':'Withdrawal'
+                                                    })(
+                                                        <TextArea rows={3} />
+                                                    )}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={20} offset={4}><Button type="primary">保存</Button></Col>
+                                        </Row> 
+                                    </Form>
+                                </TabPane>
+                                <TabPane key="5" tab="信用">
+                                    <Form>
+                                        <Row>
+                                            <Col span={12}>
+                                                <FormItem {...formItemLayout2} label="操作类型" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('credittype', {
+                                                        rules: [{ required: false, message: '请选择类型!' }],
+                                                        initialValue:1
+                                                    })(
+                                                        <RadioGroup onChange={this.credittypeChange}>
+                                                            <Radio value={1}>借信用</Radio>
+                                                            <Radio value={2}>还信用</Radio>
+                                                        </RadioGroup>
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout2} label="金额" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('creditmoney', {
+                                                        rules: [{ required: true, message: '请填写金额!' }]
+                                                    })(
+                                                        <Input />
+                                                    )}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={12}>
+                                                <FormItem {...formItemLayout2} label="到期时间" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('credittime', {
+                                                        rules: [{ required: true, message: '请选择到期时间!' }]
+                                                    })(
+                                                        <DatePicker /> 
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout2} label="发送信用调整邮件" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('emailcredit')(<Switch />)}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={24}>
+                                                <FormItem {...formItemLayout3} label="备注" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('creditremarks',{
+                                                        initialValue:'Credit in'
+                                                    })(
+                                                        <TextArea rows={3} />
+                                                    )}
+                                                </FormItem>
+                                            </Col>
+                                            <Col span={20} offset={4}><Button type="primary">保存</Button></Col>
+                                        </Row> 
+                                    </Form>
+                                </TabPane>
+                                <TabPane key="6" tab="重置密码">
+                                    <Form>
+                                        <Row>
+                                            <Col>
+                                                <FormItem {...formItemLayout1} label="主密码" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('mainpassword', {
+                                                        rules: [{ required: true, message: '请填写主密码!' }],
+                                                    })(
+                                                        <div style={{position:'relative'}}>
+                                                            <Input type={this.state.mainpasswordType?'password':'text'} placeholder="" />
+                                                            <Icon type={this.state.mainpasswordType?'eye':'eye-o'} style={{fontSize:18,position:'absolute',top:10,right:5,cursor:'pointer'}} onClick={this.switchmainPassword} />
+                                                        </div>
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout1} label="投资密码" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('investmentpassword', {
+                                                        rules: [{ required: true, message: '请填写投资密码!' }],
+                                                    })(
+                                                        <div style={{position:'relative'}}>
+                                                            <Input type={this.state.investmentpasswordType?'password':'text'} placeholder="" />
+                                                            <Icon type={this.state.investmentpasswordType?'eye':'eye-o'} style={{fontSize:18,position:'absolute',top:10,right:5,cursor:'pointer'}} onClick={this.switchinvestmentPassword} />
+                                                        </div>
+                                                    )}
+                                                </FormItem>
+                                                <FormItem {...formItemLayout1} label="发送重置密码邮件" style={{marginBottom:10}}>
+                                                    {getFieldDecorator('emailpassword')(<Switch />)}
+                                                </FormItem>
+                                            </Col>
+                                            <Col offset={8}><Button type="primary">保存</Button></Col>
+                                        </Row> 
+                                    </Form>
+                                </TabPane>
+                            </Tabs>
+                        </Card>
                     </Col>
                 </Row>
-                {/* 查看账户所有人资料 */}
-                <Drawer title="账户所有人资料" width={900} placement="right" onClose={this.onClose} visible={this.state.visible} style={{height: 'calc(100% - 55px)',overflow: 'auto',paddingBottom: 53}}> 
-                    <Card title={<div><Avatar shape="square" icon="user" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>基本资料</span></div>} 
-                          bordered={false} 
-                          headStyle={{padding:0}}
-                    >
-                        <Row gutter={50}>
-                            <Col span={11} offset={1}>
-                                <FormItem {...formItemLayout} label="所属客户" style={{marginBottom:10}}>
-                                    <Input disabled value="朱刘" />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="性别" style={{marginBottom:10}}>
-                                    <Select disabled defaultValue="male" style={{width:'100%'}}>
-                                        <Option value="male">男</Option>
-                                        <Option value="female">女</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="国家和地区" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="china">
-                                        <Option value="china">中国大陆</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="邮编" style={{marginBottom:10}}>
-                                    <Input disabled value="432000" />
-                                </FormItem>
-                            </Col>
-                            <Col span={11}>
-                                <FormItem {...formItemLayout} label="姓名" style={{marginBottom:10}}>
-                                    <Input placeholder="" value="朱刘" disabled />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="出生年月" style={{marginBottom:10}}>
-                                    <DatePicker defaultValue={moment('1996-11-15', dateFormat)} disabled style={{width:'100%'}} />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="居住地" style={{marginBottom:10}}>
-                                    <Cascader options={options} placeholder="Please select" disabled defaultValue={['zhongguo','jiangxi','jiujiang']} style={{width:'100%'}} />
-                                </FormItem>
-                            </Col>
-                            <Col span={22} offset={1}>
-                                <FormItem {...formItemLayout} label="详细地址" style={{marginBottom:10}}>
-                                    <Input disabled value="湖北省松滋市刘家场镇东马路10号八组2号" />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
-                                    <TextArea rows={3} disabled />
-                                </FormItem>
-                            </Col>  
-                        </Row> 
-                    </Card>
-                    <Card title={<div><Avatar shape="square" icon="pay-circle-o" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>财务信息</span></div>} 
-                          bordered={false} 
-                          headStyle={{padding:0}}
-                    >
-                        <Row gutter={50}>
-                            <Col span={11} offset={1}>
-                                <FormItem {...formItemLayout} label="总资产" style={{marginBottom:10}}>
-                                    <Select disabled defaultValue="1" style={{width:'100%'}}>
-                                        <Option value="1">2000001-5000000</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="收入来源" style={{marginBottom:10}}>
-                                    <Select disabled defaultValue="gongzi" style={{width:'100%'}}>
-                                        <Option value="gongzi">工资储蓄</Option>
-                                        <Option value="cunkuan">存款</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="投资年数" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">0~5</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="投资目的" style={{marginBottom:10}}>
-                                    <Input disabled value="赚钱" />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="开户银行" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">中国银行</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="银行账号" style={{marginBottom:10}}>
-                                    <Input disabled value="6254255566555" />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="你是否有至少2个月的交易经验" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">是</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="请提供可以帮助您理解我们服务的专业经验和背景" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">dd</Option>
-                                    </Select>
-                                </FormItem>
-                            </Col>
-                            <Col span={11}>
-                                <FormItem {...formItemLayout} label="净资产" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">1000001-1500000</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="投资经验" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">外汇</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="知识水平" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">大专</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="投资额度" style={{marginBottom:10}}>
-                                    <Select style={{ width: '100%' }} disabled defaultValue="1">
-                                        <Option value="1">500001-1000000</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="银行所在地" style={{marginBottom:10}}>
-                                    <Cascader options={options} placeholder="Please select" disabled defaultValue={['zhongguo','jiangxi','jiujiang']} style={{width:'100%'}} />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="银行支行" style={{marginBottom:10}}>
-                                    <Input value="" disabled />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="过去三年，你曾经通过一个类似的机构，交易过OTC的保证金外汇或CFD交易么" style={{marginBottom:10}}>
-                                    <Input value="" disabled />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="在过去的12个月内，您是否至少交易过20次？" style={{marginBottom:10}}>
-                                    <Input value="" disabled />
-                                </FormItem>
-                            </Col>
-                            <Col span={22} offset={1}>
-                                <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
-                                    <TextArea rows={3} disabled />
-                                </FormItem>
-                            </Col>  
-                        </Row> 
-                    </Card>
-                    <Card title={<div><Avatar shape="square" icon="idcard" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>证件信息</span></div>} 
-                          bordered={false} 
-                          headStyle={{padding:0}}
-                    >
-                        <Row gutter={50}>
-                            <Col span={11} offset={1}>
-                                <FormItem {...formItemLayout} label="身份证明类型" style={{marginBottom:10}}>
-                                    <Select disabled defaultValue="1" style={{width:'100%'}}>
-                                        <Option value="1">身份证</Option>
-                                    </Select>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="身份证明A" style={{marginBottom:10}}>
-                                    <a href="/fdf" target="_blank">查看文件</a>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="银行卡证明A" style={{marginBottom:10}}>
-                                    <a href="/fdf" target="_blank">查看文件</a>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="手持身份证" style={{marginBottom:10}}>
-                                    <Input disabled value="" />
-                                </FormItem>
-                            </Col>
-                            <Col span={11}>
-                                <FormItem {...formItemLayout} label="身份证明号码" style={{marginBottom:10}}>
-                                    <Input value="421584199512122410" disabled />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="身份证明B" style={{marginBottom:10}}>
-                                    <a href="/fdf" target="_blank">查看文件</a>
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="银行卡证明B" style={{marginBottom:10}}>
-                                    <a href="/fdf" target="_blank">查看文件</a>
-                                </FormItem>
-                            </Col>
-                        </Row> 
-                    </Card>
-                    <Card title={<div><Avatar shape="square" icon="profile" size={30} style={{marginRight:10,backgroundColor: '#00a8a6'}} /><span style={{verticalAlign:'middle'}}>适当性测试</span></div>} 
-                          bordered={false} 
-                          headStyle={{padding:0}}
-                    >
-                        <Row gutter={50}>
-                            <Col span={11} offset={1}>
-                                <FormItem {...formItemLayout} label="测试时间" style={{marginBottom:10}}>
-                                    <Input disabled value="" />
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="测试结果" style={{marginBottom:10}}>
-                                    <Input disabled value="" />
-                                </FormItem>
-                            </Col>
-                            <Col span={11}>
-                                <FormItem {...formItemLayout} label="测试得分" style={{marginBottom:10}}>
-                                    <Input value="" disabled />
-                                </FormItem>
-                            </Col>
-                        </Row> 
-                    </Card>
-                </Drawer>
-                {/* 联系人添加 */}
-                <Modal
-                    title="编辑联系人"
-                    visible={this.state.modalvisible}
-                    onOk={this.handleOk}
-                    onCancel={this.handleCancel}
-                    style={{top:'20px'}}
-                >
-                    <Form>
-                        <Row gutter={20}>
-                            <Col span={24}>
-                                <FormItem {...formItemLayout} label="姓名" style={{marginBottom:10}}>
-                                    {getFieldDecorator('name', {
-                                        rules: [{ required: true, message: '请填写姓名' }],
-                                    })(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="客户名称" style={{marginBottom:10}}>
-                                    {getFieldDecorator('customername', {
-                                        rules: [{ required: true, message: '请选择客户名称' }],
-                                        initialValue:'1'
-                                    })(
-                                        <Select style={{ width: '100%' }} disabled >
-                                            <Option value="1">肖女士</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="联系人归属" style={{marginBottom:10}}>
-                                    {getFieldDecorator('lianxirenguishu', {
-                                        rules: [{ required: false, message: '联系人归属' }],
-                                        initialValue:'Jim H'
-                                    })(
-                                        <Select style={{ width: '100%' }} >
-                                            <Option value="Jim H">Jim H</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                            </Col>
-                            <Col span={12}>
-                                <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
-                                    {getFieldDecorator('phone')(
-                                        <Input addonBefore={prefixSelector} style={{ width: '100%' }} />
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="邮箱" style={{marginBottom:10}}>
-                                    {getFieldDecorator('email')(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                            </Col>
-                            <Col span={12}>
-                                <FormItem {...formItemLayout} label="电话" colon={false} style={{marginBottom:10}}>
-                                    {getFieldDecorator('telephone')(
-                                        <Input addonBefore={prefixSelector1} style={{ width: '100%' }} />
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="副邮箱" style={{marginBottom:10}}>
-                                    {getFieldDecorator('spareemail')(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                            </Col>
-                            <Col span={24}>
-                                <FormItem {...formItemLayout} label="职务" style={{marginBottom:10}}>
-                                    {getFieldDecorator('post')(<Input />)}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="性别" style={{marginBottom:10}}>
-                                    {getFieldDecorator('sex')(
-                                        <Select style={{ width: '100%' }} >
-                                            <Option value="male">男</Option>
-                                            <Option value="female">女</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="出生年月" style={{marginBottom:10}}>
-                                    {getFieldDecorator('birth')(
-                                        <DatePicker style={{width:'100%'}} />
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="即时通讯" style={{marginBottom:10}}>
-                                    {getFieldDecorator('messaging')(<Input />)}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="备注" style={{marginBottom:10}}>
-                                    {getFieldDecorator('remarks')(<TextArea rows={3} />)}
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="创建时间" style={{marginBottom:10}}>
-                                    {getFieldDecorator('registrationtime')(
-                                        <DatePicker style={{width:'100%'}} disabled />
-                                    )}
-                                </FormItem>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Modal>
-                {/* 销售机会添加 */}
-                <Modal
-                    title="添加销售机会"
-                    visible={this.state.modalvisible1}
-                    onOk={this.handleOk1}
-                    onCancel={this.handleCancel1}
-                    style={{top:'200px'}}
-                >
-                    <Form>
-                        <Row>
-                            <Col span={12}>
-                                <FormItem {...formItemLayout1} label="机会名称" style={{marginBottom:10}}>
-                                    {getFieldDecorator('chancename', {
-                                        rules: [{ required: true, message: '请填写机会名称' }],
-                                    })(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout1} label="机会归属" style={{marginBottom:10}}>
-                                    {getFieldDecorator('chanceowner')(
-                                        <Select>
-                                            <Option value="Leslie Yin">Leslie Yin</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout1} label="销售阶段" style={{marginBottom:10}}>
-                                    {getFieldDecorator('salesphase', {
-                                        rules: [{ required: true, message: '请选择销售阶段' }],
-                                    })(
-                                        <Select>
-                                            <Option value="初步接洽">初步接洽</Option>
-                                            <Option value="产品推荐">产品推荐</Option>
-                                            <Option value="明确意向">明确意向</Option>
-                                            <Option value="确定签约">确定签约</Option>
-                                            <Option value="赢单">赢单</Option>
-                                            <Option value="输单">输单</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout1} label="预计成交时间" style={{marginBottom:10}}>
-                                    {getFieldDecorator('estimated')(<DatePicker style={{width:'100%'}} />)}
-                                </FormItem> 
-                            </Col>
-                            <Col span={12}>
-                                <FormItem {...formItemLayout1} label="客户名称" colon={false} style={{marginBottom:10}}>
-                                    {getFieldDecorator('customername', {
-                                        rules: [{ required: true, message: '请选择客户名称' }],
-                                        initialValue:'1'
-                                    })(
-                                        <Select disabled>
-                                            <Option value="1">朱刘</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout1} label="机会类型" style={{marginBottom:10}}>
-                                    {getFieldDecorator('chancetype')(
-                                        <Select>
-                                            <Option value="1">居间</Option>
-                                            <Option value="2">开户</Option>
-                                            <Option value="3">渠道</Option>
-                                            <Option value="4">老客户续约</Option>
-                                            <Option value="5">老客户购买新产品</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem {...formItemLayout1} label="预计成交金额" style={{marginBottom:10}}>
-                                    {getFieldDecorator('transactionamount')(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                            </Col>
-                            <Col span={24}>
-                                <FormItem {...formItemLayout2} label="备注" style={{marginBottom:10}}>
-                                    {getFieldDecorator('chanceremarks')(<TextArea rows={3} />)}
-                                </FormItem>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Modal>
             </div>
         )
     }
 }
 
-export default Form.create()(CustomersDetail); 
+const mapStateToProps = state => {
+    const { code = {data: {}} } = state.httpData;
+    return {code};
+};
+
+
+export default connect(mapStateToProps)(injectIntl(Form.create()(CustomersDetail))); 

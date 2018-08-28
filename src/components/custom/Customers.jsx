@@ -215,11 +215,6 @@ class Usermgmt extends Component {
         // this.props.form.setFieldsValue({phone:`${value} `});
         this.setState({code:`${value} `});
     }
-    // normalizePhone = (value,prevValue = []) => {
-    //     if(this.state.code){
-    //         return this.state.code+value
-    //     }
-    // }
     // upload 附件
     normFile = (e) => {
         console.log('Upload event:', e);
@@ -430,8 +425,7 @@ class Usermgmt extends Component {
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
                                         {getFieldDecorator('phone', {
-                                            rules: [{ required: false, message: '请输入手机号码!' }],
-                                            normalize:this.normalizePhone
+                                            rules: [{ required: false, message: '请输入手机号码!' }]
                                         })(
                                             <Input addonBefore={inputBefore} placeholder="" />
                                         )}

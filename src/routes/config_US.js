@@ -15,7 +15,7 @@ export default {
                 {key: '/app/custom/sales', title: 'Sales Opportunities', component: 'Sales'}
             ]
         },
-        { key: '/app/accounts', title: 'Accounts', icon: 'bank', component: 'Accounts' },
+        { key: '/app/accounts', title: 'Accounts', icon: 'bank', component: 'AccountsIndex' },
         {
             key: '/app/ui', title: 'UI', icon: 'scan',
             subs: [

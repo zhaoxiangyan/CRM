@@ -15,7 +15,7 @@ export default {
                 {key: '/app/custom/sales', title: '銷售機會', component: 'Sales'}
             ]
         },
-        { key: '/app/accounts', title: '賬戶', icon: 'bank', component: 'Accounts' },
+        { key: '/app/accounts', title: '賬戶', icon: 'bank', component: 'AccountsIndex' },
         {
             key: '/app/ui', title: 'UI', icon: 'scan',
             subs: [

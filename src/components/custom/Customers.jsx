@@ -1,10 +1,9 @@
 // 客戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal, Popover } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
-import * as config from '../../axios/config';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { receiveUser } from '@/action';
@@ -19,42 +18,43 @@ const FormItem = Form.Item;
 const {TextArea} = Input;
 
 const columns = [{
-  title: <FormattedMessage id="custom.customers.th1" />,
-  dataIndex: 'action',
-  align:'center',
+    title: <FormattedMessage id="custom.customers.th1" />,
+    dataIndex: 'dfd',
+    align:'center',
 }, {
-  title: <FormattedMessage id="custom.customers.th2" />,
-  dataIndex: 'customername',
-  render:text=><Link to={'/app/custom/customers/250'}>{text}</Link>,
-  align:'center',
+    title: <FormattedMessage id="custom.customers.th2" />,
+    dataIndex: 'name',
+    render:(text,record)=><Link to={'/app/custom/customers/'+record.id}>{text}</Link>,
+    align:'center',
 }, {
     title: <FormattedMessage id="custom.customers.th3" />,
-    dataIndex: 'followcontent',
+    dataIndex: 'follow_ups',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th4" />,
-    dataIndex: 'customerno',
+    dataIndex: 'number',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th5" />,
-    dataIndex: 'owner',
+    dataIndex: 'principal_owner_name',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th6" />,
-    dataIndex: 'followtime',
+    dataIndex: 'return_v_time',
     align:'center',
-    sorter: (a,b) => a.followtime - b.followtime
+    sorter: (a,b) => a.return_v_time - b.return_v_time
 }, {
     title: <FormattedMessage id="custom.customers.th7" />,
-    dataIndex: 'customertype',
+    dataIndex: 'type_name',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th8" />,
-    dataIndex: 'customersource',
+    dataIndex: 'source_name',
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th9" />,
-    dataIndex: 'phone',
+    dataIndex: 'mobile',
+    render:(text,record)=><span>{record.mobile_prefix}&nbsp;{text}</span>,
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th10" />,
@@ -62,25 +62,42 @@ const columns = [{
     align:'center'
 }, {
     title: <FormattedMessage id="custom.customers.th11" />,
-    dataIndex: 'createtime',
+    dataIndex: 'created_at',
     align:'center',
-    sorter: (a,b) => a.createtime - b.createtime
+    sorter: (a,b) => a.created_at - b.created_at
 }, {
     title: <FormattedMessage id="custom.customers.th12" />,
-    dataIndex: 'latesttime',
+    dataIndex: 'follow_up_date',
     align:'center',
-    sorter: (a,b) => a.latesttime - b.latesttime
+    sorter: (a,b) => a.follow_up_date - b.follow_up_date
 }, {
     title: <FormattedMessage id="custom.customers.th13" />,
-    dataIndex: 'tradingaccount',
-    align:'center'
+    dataIndex: 'account',
+    align:'center',
+    render:text=>{
+        if(text.length === 0){
+            return <span />;
+        }else if(text.length === 1){
+            return <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}</Link>;
+        }else{
+            return <Popover 
+                    content={<div>
+                        {text.map( (v,i) =>(
+                            <p key={i} style={{marginBottom:0}}><Link to={"/app/accounts/"+v.number} target="_blank">{v.number}</Link></p>
+                        ))}
+                    </div>}
+                   >
+                        <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}&nbsp;...</Link>
+                   </Popover>;
+        }
+    }
 }, {
     title: <FormattedMessage id="custom.customers.th14" />,
-    dataIndex: 'clientstatus',
+    dataIndex: 'status_name',
     align:'center'
 }];
 
-class Usermgmt extends Component {
+class Customers extends Component {
     state = {
         selectedRowKeys: [], // Check here to configure the default column
         reloadloading: false,
@@ -106,11 +123,11 @@ class Usermgmt extends Component {
         search:{
            type:'0',
            status:'0',
-           timetype:'0',
+           timetype:'1',
            start:'',
            end:'',
            source:'0',
-           keywordtype:'0',
+           keywordtype:'1',
            keyword:'',
            page:'1',
            pagesize:'10'
@@ -119,18 +136,8 @@ class Usermgmt extends Component {
         total:50
 
     };
-    componentWillMount() {
-        this.getCustomerlists();
-    }
     componentDidMount(){
-        const { receiveUser } = this.props;
-        axios.get(config.MOCK_CUSTOM_CUSTOMERS).then(res => {
-            console.log(typeof(res.data.data));
-            this.setState({data:res.data,loading:false});
-            receiveUser(res.data,'user');
-        }).catch(err => {
-            console.log(err);
-        });  
+        this.getCustomerlists();
     }
     componentWillUnmount = () => {
         this.setState = (state,callback)=>{
@@ -140,15 +147,19 @@ class Usermgmt extends Component {
     // 获取客户列表
     getCustomerlists = () => {
         console.log(this.state.search);
-        // axios({
-        //     method:'post',
-        //     url:'/api/api/admin/getcustomerlists',
-        //     data:this.state.search
-        // }).then((res)=>{
-        //     console.log("res:",res);  
-        // }).catch((err)=>{
-        //     console.log("err:",err);
-        // })
+        const { receiveUser } = this.props;
+        this.setState({loading:true});
+        axios({
+            method:'post',
+            url:'/api/api/admin/getcustomerlists',
+            data:this.state.search
+        }).then((res)=>{
+            console.log("res:",res);
+            receiveUser(res.data.data,'user');
+            this.setState({data:res.data.data,loading:false});
+        }).catch((err)=>{
+            console.log("err:",err);
+        })
     }
     start = () => {
         this.setState({ reloadloading: true });
@@ -165,15 +176,19 @@ class Usermgmt extends Component {
         this.setState({ selectedRowKeys });
     }
     // 第一个select 所有客户
-    handleChange1 = (value) => {
-        this.setState({search:{type:`${value}`}},()=>{this.getCustomerlists();});
+    handleChange1 = (type) => {
+        this.setState({search:{...this.state.search,type}},()=>{
+            this.getCustomerlists();
+        }); 
     }
     // 第二个select 客户状态
-    handleChange2 = (value) => {
-        console.log(`selected ${value}`);
+    handleChange2 = (status) => {
+        this.setState({search:{...this.state.search,status}},()=>{
+            this.getCustomerlists();
+        }); 
     }
-    timetypeChange = (value) => {
-        console.log(`selected ${value}`);
+    timetypeChange = (timetype) => {
+        this.setState({search:{...this.state.search,timetype}}); 
     }
     // 时间选择器 创建时间
     onChange3 = (dates, dateStrings) => {
@@ -181,23 +196,31 @@ class Usermgmt extends Component {
         console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
     }
     // 第三个select 全部来源
-    handleChange3 = (value) => {
-        console.log(`selected ${value}`);
+    handleChange3 = (source) => {
+        this.setState({search:{...this.state.search,source}},()=>{
+            this.getCustomerlists();
+        }); 
     }
     // 第四个select 客户姓名
-    handleChange4 = (value) => {
-        console.log(`selected ${value}`);
+    handleChange4 = (keywordtype) => {
+        this.setState({search:{...this.state.search,keywordtype}}); 
     }
     // 关键词搜索
-    handleSearch = (value) => {
-        console.log(value);
+    handleSearch = (keyword) => {
+        this.setState({search:{...this.state.search,keyword}},()=>{
+            this.getCustomerlists();
+        }); 
     }
     // 分页器
-    pageChange = (page,pageSize) => {
-        console.log(page,pageSize);
+    pageChange = (page,pagesize) => {
+        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+            this.getCustomerlists();
+        }); 
     }
-    pagesizeChange = (current,size) => {
-        console.log(current,size);
+    pagesizeChange = (page,pagesize) => {
+        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+            this.getCustomerlists();
+        }); 
     }
     showTotal = (total) => {
         return `Total ${total} items`;
@@ -366,9 +389,9 @@ class Usermgmt extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} />
+                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
-                                    <Pagination size="small" total={this.state.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
+                                    <Pagination size="small" total={this.state.data.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
                             </Card>
                         </div>
@@ -553,4 +576,4 @@ const mapDispatchToProps = dispatch => ({
     receiveUser: bindActionCreators(receiveUser, dispatch)
 });
 
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Usermgmt)));
+export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Customers)));

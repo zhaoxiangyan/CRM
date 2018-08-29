@@ -4,34 +4,14 @@
 import React, { Component } from 'react';
 import { Row, Col, Card, Modal, Button } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
-const confirm = Modal.confirm;
 
-class S extends Component {
+class Modals extends Component {
     state = {
-        visible: false,
         ModalText2: 'Content of the modal dialog',
         visible2: false,
         loading3: false,
         visible3: false,
         modal1Visible: false,
-        modal2Visible: false,
-    };
-    showModal = () => {
-        this.setState({
-            visible: true,
-        });
-    };
-    handleOk = (e) => {
-        console.log(e);
-        this.setState({
-            visible: false,
-        });
-    };
-    handleCancel = (e) => {
-        console.log(e);
-        this.setState({
-            visible: false,
-        });
     };
     showModal2 = () => {
         this.setState({
@@ -53,9 +33,8 @@ class S extends Component {
     setModal1Visible = (modal1Visible) => {
         this.setState({ modal1Visible });
     };
-    setModal2Visible = (modal2Visible) => {
-        this.setState({ modal2Visible });
-    };
+    // ES6对象的扩展  属性简洁表示法
+    // es6 写法？？？
     handleCancel2 = () => {
         console.log('Clicked cancel button');
         this.setState({
@@ -76,48 +55,6 @@ class S extends Component {
     handleCancel3 = () => {
         this.setState({ visible3: false });
     };
-    showConfirm4 = () => {
-        confirm({
-            title: 'Want to delete these items?',
-            content: 'some descriptions',
-            onOk() {
-                console.log('OK');
-            },
-            onCancel() {
-                console.log('Cancel');
-            },
-        });
-    };
-    info = () => {
-        Modal.info({
-            title: 'This is a notification message',
-            content: (
-                <div>
-                    <p>some messages...some messages...</p>
-                    <p>some messages...some messages...</p>
-                </div>
-            ),
-            onOk() {},
-        });
-    };
-    success = () => {
-        Modal.success({
-            title: 'This is a success message',
-            content: 'some messages...some messages...',
-        });
-    };
-    error = () => {
-        Modal.error({
-            title: 'This is an error message',
-            content: 'some messages...some messages...',
-        });
-    };
-    warning = () => {
-        Modal.warning({
-            title: 'This is a warning message',
-            content: 'some messages...some messages...',
-        });
-    };
     render() {
         return (
             <div className="gutter-example button-demo">
@@ -126,16 +63,6 @@ class S extends Component {
                     <Col className="gutter-row" md={24}>
                         <div className="gutter-box">
                             <Card bordered={false}>
-                                <p>
-                                    <Button type="primary" onClick={this.showModal}>基本用法</Button>
-                                    <Modal title="Basic Modal" visible={this.state.visible}
-                                           onOk={this.handleOk} onCancel={this.handleCancel}
-                                    >
-                                        <p>some contents...</p>
-                                        <p>some contents...</p>
-                                        <p>some contents...</p>
-                                    </Modal>
-                                </p>
                                 <p>
                                     <Button type="primary" onClick={this.showModal2}>异步关闭</Button>
                                     <Modal title="Title of the modal dialog"
@@ -171,17 +98,6 @@ class S extends Component {
                                     </Modal>
                                 </p>
                                 <p>
-                                    <Button onClick={this.showConfirm4}>
-                                        确认框
-                                    </Button>
-                                </p>
-                                <p>
-                                    <Button onClick={this.info}>信息提示</Button>
-                                    <Button onClick={this.success}>成功</Button>
-                                    <Button onClick={this.error}>失败</Button>
-                                    <Button onClick={this.warning}>警告</Button>
-                                </p>
-                                <p>
                                     <Button type="primary" onClick={() => this.setModal1Visible(true)}>距离顶部20px</Button>
                                     <Modal
                                         title="20px to Top"
@@ -189,19 +105,6 @@ class S extends Component {
                                         visible={this.state.modal1Visible}
                                         onOk={() => this.setModal1Visible(false)}
                                         onCancel={() => this.setModal1Visible(false)}
-                                    >
-                                        <p>some contents...</p>
-                                        <p>some contents...</p>
-                                        <p>some contents...</p>
-                                    </Modal>
-                                    <br /><br />
-                                    <Button type="primary" onClick={() => this.setModal2Visible(true)}>垂直居中</Button>
-                                    <Modal
-                                        title="Vertically centered modal dialog"
-                                        wrapClassName="vertical-center-modal"
-                                        visible={this.state.modal2Visible}
-                                        onOk={() => this.setModal2Visible(false)}
-                                        onCancel={() => this.setModal2Visible(false)}
                                     >
                                         <p>some contents...</p>
                                         <p>some contents...</p>
@@ -218,4 +121,4 @@ class S extends Component {
 }
 
 
-export default S;
+export default Modals;

@@ -158,12 +158,6 @@ class Usermgmt extends Component {
     handleChange1 = (value) => {
         console.log(`selected ${value}`);
     }
-    handleBlur1 = () => {
-        console.log('blur');
-    }
-    handleFocus1 = () => {
-        console.log('focus');
-    }
     // 第二个select
     handleChange2 = (value) => {
         console.log(`selected ${value}`);
@@ -282,19 +276,17 @@ class Usermgmt extends Component {
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
                                             <Select
-                                                addonBefore="Http://"
                                                 showSearch
                                                 style={{ width: 150 }}
                                                 placeholder="Select a person"
                                                 optionFilterProp="children"
                                                 onChange={this.handleChange1}
-                                                onFocus={this.handleFocus1}
-                                                onBlur={this.handleBlur1}
                                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             >
-                                                <Option value="jack">Jack</Option>
-                                                <Option value="lucy">Lucy</Option>
-                                                <Option value="tom">Tom</Option>
+                                                <Option value="0">全部</Option>
+                                                <Option value="1">直属下级</Option>
+                                                <Option value="2">非直属下级</Option>
+                                                <Option value="3">无上级</Option>
                                             </Select>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>

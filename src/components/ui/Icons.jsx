@@ -3,9 +3,29 @@
  */
 import React from 'react';
 import Emoji from './emoji';
+import Custom from './custom';
 import { Row, Col, Card, Icon } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 
+
+const customList = () => {
+    let _elements = [];
+    // for (let i = 1; i < 30; i++) {
+    //     _elements.push(
+    //         <li key={i}>
+    //             <Custom type={'emoji-' + i} />
+    //             <span>{'emoji-' + i}</span>
+    //         </li>
+    //     )
+    // }
+    _elements.push(
+        <li key="1">
+            <Custom type={'shezhi'} />
+            <span>{'shezhi'}</span>
+        </li>
+    )
+    return _elements;
+};
 const emojiList = () => {
     let _elements = [];
     for (let i = 1; i < 30; i++) {
@@ -35,9 +55,19 @@ const Icons = () => (
                 <div className="gutter-box">
                     <Card bordered={false}>
                         <ul className="icons-list">
+                            {customList()}
+                        </ul>
+                    </Card>
+                </div>
+            </Col>
+        </Row>
+        <Row gutter={16}>
+            <Col className="gutter-row" md={24}>
+                <div className="gutter-box">
+                    <Card bordered={false}>
+                        <ul className="icons-list">
                             {emojiList()}
                         </ul>
-
                     </Card>
                 </div>
             </Col>

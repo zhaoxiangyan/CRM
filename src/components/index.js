@@ -9,7 +9,6 @@ import AsynchronousTable from './tables/AsynchronousTable';
 import Echarts from './charts/Echarts';
 import Recharts from './charts/Recharts';
 import Icons from './ui/Icons';
-import Buttons from './ui/Buttons';
 import Spins from './ui/Spins';
 import Modals from './ui/Modals';
 import Notifications from './ui/Notifications';
@@ -43,7 +42,7 @@ const WysiwygBundle = (props) => (
 
 export default {
     BasicForm, BasicTable, AdvancedTable, AsynchronousTable,
-    Echarts, Recharts, Icons, Buttons, Spins, Modals, Notifications,
+    Echarts, Recharts, Icons, Spins, Modals, Notifications,
     Tabs, Banners, Drags, Dashboard, Gallery, BasicAnimations,
     ExampleAnimations, AuthBasic, RouterEnter, WysiwygBundle,
     Cssmodule, MapUi, Usermgmt, Bwtauser, CustomersIndex, Sales,

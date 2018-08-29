@@ -19,7 +19,6 @@ export default {
         {
             key: '/app/ui', title: 'UI', icon: 'scan',
             subs: [
-                { key: '/app/ui/buttons', title: 'Button', component: 'Buttons'},
                 { key: '/app/ui/icons', title: 'Icon', component: 'Icons'},
                 { key: '/app/ui/spins', title: 'Loading', component: 'Spins'},
                 { key: '/app/ui/modals', title: 'Dialog', component: 'Modals'},

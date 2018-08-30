@@ -2,7 +2,7 @@
  * Created by hao.cheng on 2017/4/25.
  */
 import React, { Component } from 'react';
-import { Row, Col, Card, Tabs, Icon, Radio, Button } from 'antd';
+import { Row, Col, Card, Tabs, Radio } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 const TabPane = Tabs.TabPane;
 
@@ -20,9 +20,6 @@ class TabsCustom extends Component {
             mode: 'top'
         };
     }
-    callback = (key) => {
-        console.log(key);
-    };
     handleModeChange = (e) => {
         const mode = e.target.value;
         this.setState({ mode });
@@ -31,6 +28,7 @@ class TabsCustom extends Component {
         this.setState({ activeKey });
     };
     onEdit = (targetKey, action) => {
+        console.log(action,targetKey);
         this[action](targetKey);
     };
     add = () => {
@@ -61,51 +59,12 @@ class TabsCustom extends Component {
                 <Row gutter={16}>
                     <Col className="gutter-row" md={12}>
                         <div className="gutter-box">
-                            <Card title="基本-默认选中第一项" bordered={false}>
-                                <Tabs defaultActiveKey="1" onChange={this.callback}>
-                                    <TabPane tab="Tab 1" key="1">Content of Tab Pane 1</TabPane>
-                                    <TabPane tab="Tab 2" key="2">Content of Tab Pane 2</TabPane>
-                                    <TabPane tab="Tab 3" key="3">Content of Tab Pane 3</TabPane>
-                                </Tabs>
-                            </Card>
-                        </div>
-                        <div className="gutter-box">
-                            <Card title="带图标" bordered={false}>
-                                <Tabs defaultActiveKey="2" style={{height: 150}}>
-                                    <TabPane tab={<span><Icon type="apple" />Tab 1</span>} key="1">
-                                        Tab 1
-                                    </TabPane>
-                                    <TabPane tab={<span><Icon type="android" />Tab 2</span>} key="2">
-                                        Tab 2
-                                    </TabPane>
-                                </Tabs>
-                            </Card>
-                        </div>
-                        <div className="gutter-box">
-                            <Card title="卡片式风格" bordered={false}>
-                                <Tabs onChange={this.callback} type="card">
-                                    <TabPane tab="Tab 1" key="1">Content of Tab Pane 1</TabPane>
-                                    <TabPane tab="Tab 2" key="2">Content of Tab Pane 2</TabPane>
-                                    <TabPane tab="Tab 3" key="3">Content of Tab Pane 3</TabPane>
-                                </Tabs>
-                            </Card>
-                        </div>
-                    </Col>
-                    <Col className="gutter-row" md={12}>
-                        <div className="gutter-box">
-                            <Card title="禁用某项" bordered={false}>
-                                <Tabs defaultActiveKey="1">
-                                    <TabPane tab="Tab 1" key="1">Tab 1</TabPane>
-                                    <TabPane tab="Tab 2" disabled key="2">Tab 2</TabPane>
-                                    <TabPane tab="Tab 3" key="3">Tab 3</TabPane>
-                                </Tabs>
-                            </Card>
-                        </div>
-                        <div className="gutter-box">
                             <Card title="带滚动" bordered={false}>
                                 <Radio.Group onChange={this.handleModeChange} value={mode} style={{ marginBottom: 8 }}>
-                                    <Radio.Button value="top">Horizontal</Radio.Button>
-                                    <Radio.Button value="left">Vertical</Radio.Button>
+                                    <Radio.Button value="top">Top</Radio.Button>
+                                    <Radio.Button value="left">Left</Radio.Button>
+                                    <Radio.Button value="right">Right</Radio.Button>
+                                    <Radio.Button value="bottom">Bottom</Radio.Button>
                                 </Radio.Group>
                                 <Tabs
                                     defaultActiveKey="1"
@@ -126,11 +85,10 @@ class TabsCustom extends Component {
                         </div>
                         <div className="gutter-box">
                             <Card title="带删除和新增" bordered={false}>
-                                <div style={{ marginBottom: 16 }}>
+                                {/* <div style={{ marginBottom: 16 }}>
                                     <Button onClick={this.add}>ADD</Button>
-                                </div>
+                                </div> */}
                                 <Tabs
-                                    hideAdd
                                     onChange={this.onChange}
                                     activeKey={this.state.activeKey}
                                     type="editable-card"
@@ -142,7 +100,6 @@ class TabsCustom extends Component {
                             </Card>
                         </div>
                     </Col>
-
                 </Row>
             </div>
         )

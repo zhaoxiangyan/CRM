@@ -34,19 +34,24 @@ class Login extends React.Component {
             console.log(values);
             if (!err) {
                 console.log('Received values of form: ', values);
+                    // 用户登录
                     axios({
                         method:'post',
-                        url:'/api/api/admin/login',
+                        url:'https://api.gqfxcn.com/passport/login',
                         data:values
-                    }).then((res)=>{
-                        if(res.data.code){
-                            this.setState({errorstatus:res.data.code});
+                    }).then(res=>{
+                        if(res.data.is_succ){
+                            this.setState({errorstatus:res.data.is_succ});
                             authData(res.data.data);
                             localStorage.setItem('user', JSON.stringify(res.data.data));
                             this.props.history.push('/app/dashboard/index');
                         }else{
-                            this.setState({error:res.data.message,errorstatus:res.data.code});
+                            this.setState({error:res.data.message,errorstatus:res.data.is_succ});
                         }   
+                    }).catch(err=>{
+                        if(!err.response.data.is_succ){
+                            this.setState({error:err.response.data.message,errorstatus:err.response.data.is_succ});
+                        }
                     })
                 // if (values.userName === 'guest' && values.password === 'guest') fetchData({funcName: 'guest', stateName: 'auth'});
             }
@@ -81,9 +86,9 @@ class Login extends React.Component {
                     {this.state.errorstatus||<Alert message={this.state.error} type="error" style={{marginBottom:15}} />}
                     <Form onSubmit={this.handleSubmit} >
                         <FormItem>
-                            {getFieldDecorator('userName', {
-                                rules: [{ required: true, message: '请输入用户名!' }],
-                                initialValue:'admin'
+                            {getFieldDecorator('email', {
+                                rules: [{ required: true, message: '请输入邮箱!' }],
+                                initialValue:'admin@qq.com'
                             })(
                                 <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="邮箱" />
                             )}
@@ -91,18 +96,19 @@ class Login extends React.Component {
                         <FormItem>
                             {getFieldDecorator('password', {
                                 rules: [{ required: true, message: '请输入密码!' }],
-                                initialValue:'admin'
+                                initialValue:'123456'
                             })(
                                 <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="password" placeholder="密码" />
                             )}
                         </FormItem>
                         <FormItem>
-                            {getFieldDecorator('remember', {
+                            {/* {getFieldDecorator('remember', {
                                 valuePropName: 'checked',
                                 initialValue: true,
                             })(
                                 <Checkbox>记住我</Checkbox>
-                            )}
+                            )} */}
+                            <Checkbox>记住我</Checkbox>
                             <Link to="/findpassword" className="login-form-forgot" href="" style={{float: 'right'}}>忘记密码？</Link>
                             <Button type="primary" htmlType="submit" className="login-form-button" style={{width: '100%'}}>
                                 登录

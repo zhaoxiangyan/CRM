@@ -13,6 +13,7 @@ import {IntlProvider, addLocaleData} from 'react-intl';
 import zh_CN from './locale/zh_CN';
 import en_US from './locale/en_US';
 import zh_TW from './locale/zh_TW';
+import axios from 'axios';
 
 // redux 注入操作
 const middleware = [thunk];
@@ -24,10 +25,19 @@ console.log(store.getState());
 // localStorage.setItem('lang', 'zh_CN');
 var appLocale;
 switch (localStorage.getItem('lang')){
-    case 'zh_CN': appLocale = zh_CN;break;
-    case 'zh_TW': appLocale = zh_TW;break;
-    case 'en_US': appLocale = en_US;break;
-    default:appLocale = en_US; localStorage.setItem('lang','en_US');
+    case 'zh_CN': 
+        appLocale = zh_CN;
+        axios.defaults.headers['x-api-lang']='zh_cn';
+        break;
+    case 'zh_TW': 
+        appLocale = zh_TW;
+        break;
+    case 'en_US': 
+        appLocale = en_US;
+        break;
+    default:
+        appLocale = en_US; 
+        localStorage.setItem('lang','en_US');
 }
 addLocaleData(appLocale.data);
 

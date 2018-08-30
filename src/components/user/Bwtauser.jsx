@@ -25,7 +25,7 @@ const columns = [{
 }, {
   title: <FormattedMessage id="user.traderwork.th2" />,
   dataIndex: 'name',
-  render:text=><Link to={'/app/user/bwta/200'}>{text}</Link>,
+  render:text=><Link to={'/app/user/bwtauser/200'}>{text}</Link>,
   align:'center',
   sorter: (a,b) => a.name - b.name
 }, {

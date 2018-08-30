@@ -28,8 +28,8 @@ const columns = [{
     align:'center',
 }, {
     title: <FormattedMessage id="custom.customers.th3" />,
-    dataIndex: 'follow_ups',
-    align:'center'
+    dataIndex: 'follow_ups.content',
+    align:'center',   
 }, {
     title: <FormattedMessage id="custom.customers.th4" />,
     dataIndex: 'number',
@@ -42,7 +42,7 @@ const columns = [{
     title: <FormattedMessage id="custom.customers.th6" />,
     dataIndex: 'return_v_time',
     align:'center',
-    sorter: (a,b) => a.return_v_time - b.return_v_time
+    sorter: true
 }, {
     title: <FormattedMessage id="custom.customers.th7" />,
     dataIndex: 'type_name',
@@ -64,12 +64,12 @@ const columns = [{
     title: <FormattedMessage id="custom.customers.th11" />,
     dataIndex: 'created_at',
     align:'center',
-    sorter: (a,b) => a.created_at - b.created_at
+    sorter: true
 }, {
     title: <FormattedMessage id="custom.customers.th12" />,
-    dataIndex: 'follow_up_date',
+    dataIndex: 'follow_ups.created_at',
     align:'center',
-    sorter: (a,b) => a.follow_up_date - b.follow_up_date
+    sorter:true
 }, {
     title: <FormattedMessage id="custom.customers.th13" />,
     dataIndex: 'account',
@@ -130,7 +130,9 @@ class Customers extends Component {
            keywordtype:'1',
            keyword:'',
            page:'1',
-           pagesize:'10'
+           pagesize:'10',
+           sorttype:'',
+           sortname:''
         },
         // 总条数
         total:50
@@ -224,6 +226,13 @@ class Customers extends Component {
     }
     showTotal = (total) => {
         return `Total ${total} items`;
+    }
+    // 排序
+    sorterChange = (pagination,filters,sorter) => {
+        console.log(sorter.order,sorter.field);
+         this.setState({search:{...this.state.search,sorttype:sorter.order,sortname:sorter.field}},()=>{
+            this.getCustomerlists();
+        });
     }
     // 抽屉  添加
     showDrawer = () => {
@@ -389,8 +398,9 @@ class Customers extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
+                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
+                                    <Button style={{float:'left'}} size="small" title="回收站"><Icon type="delete" /></Button>
                                     <Pagination size="small" total={this.state.data.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
                             </Card>

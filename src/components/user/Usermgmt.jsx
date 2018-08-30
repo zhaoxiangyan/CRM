@@ -1,10 +1,9 @@
 // Broker Work 用戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Cascader, Switch, Upload, Radio } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Cascader, Switch, Upload, Radio, message } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
-import * as config from '../../axios/config';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { receiveUser } from '@/action';
@@ -22,26 +21,27 @@ const RadioGroup = Radio.Group;
 
 const columns = [{
   title: <FormattedMessage id="user.brokerwork.th1" />,
-  dataIndex: 'userid',
+  dataIndex: 'number',
   align:'center',
-  sorter: (a,b) => a.userid - b.userid
+  sorter: true
 }, {
   title: <FormattedMessage id="user.brokerwork.th2" />,
   dataIndex: 'name',
-  render:text=><Link to={'/app/user/mgmt/250'}>{text}</Link>,
+  render:(text,record)=><Link to={'/app/user/usermgmt/'+record.id}>{text}</Link>,
   align:'center',
-  sorter: (a,b) => a.name - b.name
+  sorter: true
 }, {
     title: <FormattedMessage id="user.brokerwork.th3" />,
     dataIndex: 'email',
     align:'center'
 }, {
     title: <FormattedMessage id="user.brokerwork.th4" />,
-    dataIndex: 'telephone',
+    dataIndex: 'mobile',
+    render:(text,record)=><span>{record.mobile_prefix}&nbsp;{text}</span>,
     align:'center'
 }, {
     title: <FormattedMessage id="user.brokerwork.th5" />,
-    dataIndex: 'role',
+    dataIndex: 'role_user',
     align:'center'
 }, {
     title: <FormattedMessage id="user.brokerwork.th6" />,
@@ -119,36 +119,57 @@ class Usermgmt extends Component {
         // 抽屉
         visible:false,
         // 登录密码框类型
-        passwordType:true
+        passwordType:true,
+        // 查询条件
+        search:{
+            type:'0',
+            status:'0',
+            timetype:'1',
+            start:'',
+            end:'',
+            source:'0',
+            keywordtype:'1',
+            keyword:'',
+            page:'1',
+            pagesize:'10',
+            sorttype:'',
+            sortname:''
+         },
+         // 总条数
+         total:50
     };
-    componentWillMount() {
-        console.log('Usermgmt');
-    }
-    componentDidMount(){
-        const { receiveUser } = this.props;
-        // receiveUser({funcName:'brokerwork',stateName:'user'});
-        axios.get(config.MOCK_USER_BROKERWORK).then(res => {
-            console.log(typeof(res.data.data));
-            this.setState({data:res.data,loading:false});
-            receiveUser(res.data,'user');
-        }).catch(err => {
-            console.log(err);
-        });  
+    componentDidMount(){ 
+        this.getUsers();
     }
     componentWillUnmount = () => {
         this.setState = (state,callback)=>{
            return;
         };
     }
+    // 获取用户列表
+    getUsers = () => {
+        console.log(this.state.search);
+        const { receiveUser } = this.props;
+        this.setState({loading:true});
+        axios.get('https://api.gqfxcn.com/users',{
+            data:this.state.search
+        }).then(res=>{
+            console.log("res:",res);
+            if(res.data.is_succ){
+                receiveUser(res.data.data,'user');
+                this.setState({data:res.data.data,loading:false});
+            } 
+        }).catch(err=>{
+            console.log("err:",err);
+            if(!err.response.data.is_succ){
+                message.error(err.response.data.message);
+            }
+        })
+    }
     start = () => {
         this.setState({ reloadloading: true });
         // ajax request after empty completing
-        setTimeout(() => {
-            this.setState({
-                selectedRowKeys: [],
-                reloadloading: false,
-            });
-        }, 1000);
+        setTimeout(() => {this.setState({selectedRowKeys: [], reloadloading: false,});},1000);
     }
     onSelectChange = (selectedRowKeys) => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
@@ -170,6 +191,23 @@ class Usermgmt extends Component {
     // 分页器
     showTotal = (total) => {
         return `Total ${total} items`;
+    }
+    pageChange = (page,pagesize) => {
+        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+            this.getUsers();
+        }); 
+    }
+    pagesizeChange = (page,pagesize) => {
+        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+            this.getUsers();
+        }); 
+    }
+    // 排序
+    sorterChange = (pagination,filters,sorter) => {
+        console.log(sorter.order,sorter.field);
+         this.setState({search:{...this.state.search,sorttype:sorter.order,sortname:sorter.field}},()=>{
+            this.getUsers();
+        });
     }
     // 抽屉  添加
     showDrawer = () => {
@@ -321,9 +359,9 @@ class Usermgmt extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} />
+                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
-                                    <Pagination size="small" total={50} showTotal={this.showTotal} showSizeChanger showQuickJumper />
+                                    <Pagination size="small" total={this.state.data.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
                             </Card>
                         </div>

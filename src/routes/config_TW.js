@@ -4,8 +4,8 @@ export default {
         {
             key:'/app/user',title: '用戶', icon:'user',
             subs: [
-                {key: '/app/user/mgmt', title: 'Broker Work用戶', component: 'Usermgmt'},
-                {key: '/app/user/bwta', title: 'Trader Work用戶', component: 'Bwtauser'}
+                {key: '/app/user/usermgmt', title: 'Broker Work用戶', component: 'Usermgmt'},
+                {key: '/app/user/bwtauser', title: 'Trader Work用戶', component: 'Bwtauser'}
             ]
         },
         {

@@ -4,8 +4,8 @@ export default {
         {
             key:'/app/user',title: 'Users', icon:'user',
             subs: [
-                {key: '/app/user/mgmt', title: 'Broker Work Users', component: 'Usermgmt'},
-                {key: '/app/user/bwta', title: 'Trader Work Users', component: 'Bwtauser'}
+                {key: '/app/user/usermgmt', title: 'Broker Work Users', component: 'Usermgmt'},
+                {key: '/app/user/bwtauser', title: 'Trader Work Users', component: 'Bwtauser'}
             ]
         },
         {

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Menu, Icon, Layout, Badge, Popover } from 'antd';
+import { Menu, Icon, Layout, Badge, Popover, message } from 'antd';
 import screenfull from 'screenfull';
-import { gitOauthToken, gitOauthInfo } from '../axios';
-import { queryString } from '../utils';
+// import { gitOauthToken, gitOauthInfo } from '../axios';
+// import { queryString } from '../utils';
 // import avater from '../style/imgs/b1.jpg';
 import SiderCustom from './SiderCustom';
 import { connect } from 'react-redux';
@@ -22,13 +22,18 @@ class HeaderCustom extends Component {
         full:false
     };
     componentDidMount() {
-        axios.get('/static/api/country_code.json').then((res)=>{
-            console.log("res:",res);
-        }).catch((err)=>{
-            console.log("err:",err);
+        // 获取登录用户资料
+        axios.get('https://api.gqfxcn.com/userinfo').then(res=>{
+            if(res.data.is_succ){
+                this.setState({user: res.data.data});
+            }  
+        }).catch(err=>{
+            if(!err.response.data.is_succ){
+                message.error(err.response.data.message);
+            }
         })
         // 外部接口proxy
-        const QueryString = queryString();
+        // const QueryString = queryString();
         // if (QueryString.hasOwnProperty('code')) {
         //     console.log(QueryString);
         //     const _user = JSON.parse(localStorage.getItem('user'));
@@ -45,21 +50,21 @@ class HeaderCustom extends Component {
         //         user: _user
         //     });
         // }
-        const _user = JSON.parse(localStorage.getItem('user')) || '测试';
-        if (!_user && QueryString.hasOwnProperty('code')) {
-            gitOauthToken(QueryString.code).then(res => {
-                gitOauthInfo(res.access_token).then(info => {
-                    this.setState({
-                        user: info
-                    });
-                    localStorage.setItem('user', JSON.stringify(info));
-                });
-            });
-        } else {
-            this.setState({
-                user: _user
-            });
-        }
+        // const _user = JSON.parse(localStorage.getItem('user')) || '测试';
+        // if (!_user && QueryString.hasOwnProperty('code')) {
+        //     gitOauthToken(QueryString.code).then(res => {
+        //         gitOauthInfo(res.access_token).then(info => {
+        //             this.setState({
+        //                 user: info
+        //             });
+        //             localStorage.setItem('user', JSON.stringify(info));
+        //         });
+        //     });
+        // } else {
+        //     this.setState({
+        //         user: _user
+        //     });
+        // }
     };
     screenFull = () => {
         if (screenfull.enabled) {
@@ -95,8 +100,21 @@ class HeaderCustom extends Component {
         window.location.reload();
     };
     logout = () => {
-        localStorage.removeItem('user');
-        this.props.history.push('/login')
+        // 用户退出登录
+        axios({
+            method:'get',
+            url:'https://api.gqfxcn.com/passport/logout'
+        }).then(res=>{
+            if(res.data.is_succ){
+                localStorage.removeItem('user');
+                this.props.history.push('/login')
+            }  
+        }).catch(err=>{
+            if(!err.response.data.is_succ){
+                message.error(err.response.data.message);
+            }
+        })
+        
     };
     popoverHide = () => {
         this.setState({
@@ -129,7 +147,7 @@ class HeaderCustom extends Component {
                     style={{ lineHeight: '64px', float: 'right' }}
                     onClick={this.menuClick}
                 >
-                    <SubMenu title={<FormattedMessage id="title" tagName="b" />}>
+                    <SubMenu className="submenu" title={<FormattedMessage id="title" tagName="b" />}>
                             {lang !== 'zh_CN' && <Menu.Item key="zh_cn">简体中文</Menu.Item>}
                             {lang !== 'en_US' && <Menu.Item key="en_us">English</Menu.Item>}
                             {lang !== 'zh_TW' && <Menu.Item key="zh_tw">繁体中文</Menu.Item>}
@@ -142,7 +160,7 @@ class HeaderCustom extends Component {
                             <Icon type="notification" />
                         </Badge>
                     </Menu.Item>
-                    <SubMenu title={<Icon type="setting" />}>
+                    <SubMenu className="submenu" title={<Icon type="setting" />}>
                         <Menu.Item key="setting:1">消息设置</Menu.Item>
                         <Menu.Item key="setting:2">操作日志</Menu.Item>
                         <Menu.Item key="setting:3">用户管理</Menu.Item>
@@ -152,22 +170,16 @@ class HeaderCustom extends Component {
                         <Menu.Item key="setting:7">出入金统计设置</Menu.Item>
                         <Menu.Item key="setting:8">通知中心</Menu.Item>
                     </SubMenu>
-                    <SubMenu title={<span className="avatar"><img src={require('../style/imgs/b1.jpg')} alt="头像" /><i className="on bottom b-white" /></span>}>
-                        <Menu.Item key="user:1">你好 - {this.props.user.userName}</Menu.Item>
+                    <SubMenu className="submenu" title={<span className="avatar"><img src={require('../style/imgs/b1.jpg')} alt="头像" /><i className="on bottom b-white" /></span>}>
+                        <Menu.Item key="user:1">你好 - {this.state.user.name}</Menu.Item>
                         <Menu.Item key="user:2">出金申请</Menu.Item>
                         <Menu.Item key="user:3">修改密码</Menu.Item>
                         <Menu.Item key="user:4">个人资料</Menu.Item>
                         <Menu.Item key="user:5">推广链接</Menu.Item>
                         <Menu.Item key="user:6">邮箱设置</Menu.Item>
-                        <Menu.Item key="logout"><span onClick={this.logout}>退出登录</span></Menu.Item>
+                        <Menu.Item key="logout">退出登录</Menu.Item>
                     </SubMenu>
                 </Menu>
-                {/* <style>{`
-                    .ant-menu-submenu-horizontal > .ant-menu {
-                        width: 120px;
-                        left: -40px;
-                    }
-                `}</style> */}
             </Header>
         )
     }

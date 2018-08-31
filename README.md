@@ -1,23 +1,17 @@
-# react-admin
-react-admin system solution
-
-### 文档地址：[wiki](https://github.com/yezihaohao/react-admin/wiki)
-
-### 问题和方案汇总：[issue](https://github.com/yezihaohao/react-admin/issues/12)
+# react-crm
+react-crm system solution
 
 ### 最下方增加版本更新日志😁
 
 ### 前言
-> 网上react后台管理开源免费的完整版项目比较少，所以利用空余时间集成了一个版本出来，已放到GitHub
-  启动和打包的时间都稍长，请耐心等待两分钟
+> 启动和打包的时间都稍长，请耐心等待两分钟
 
-- [GitHub地址](https://github.com/yezihaohao/react-admin)
-- [预览地址](https://admiring-dijkstra-34cb29.netlify.com)(已增加响应式，可手机预览😄)
+
 
 ### 依赖模块
 <span style="color: rgb(184,49,47);">项目是用create-react-app创建的，主要还是列出新加的功能依赖包</span>
 
-<span style="color: rgb(184,49,47);">点击名称可跳转相关网站😄😄</span>
+<span style="color: rgb(184,49,47);">点击名称可跳转相关网站</span>
 
 - [react@15.5.0](https://facebook.github.io/react/)
 - [react-router@3.0.2](https://react-guide.github.io/react-router-cn/)(<span style="color: rgb(243,121,52);">react路由,4.x的差异还是比较大，暂时还是3.x的版本</span>)
@@ -45,7 +39,6 @@ react-admin system solution
     - 顶部导航(菜单伸缩，全屏功能)
     - 左边菜单(增加滚动条以及适配路由的active操作)
 - UI模块
-    - 按钮(antd组件)
     - 图标(antd组件并增加彩色表情符)
     - 加载中(antd组件并增加顶部加载条)
     - 通知提醒框(antd组件)
@@ -59,40 +52,15 @@ react-admin system solution
     - 动画案例
 - 表格
     - 基础表格(antd组件)
-    - 高级表格(antd组件)
-    - 异步表格(数据来自掘金酱的接口)
 - 表单
     - 基础表单(antd组件)
 - 图表
     - echarts图表
     - recharts图表
 - 页面
-    - 登录页面(包括GitHub第三方登录)
+    - 登录页面
     - 404页面
 
-### 功能截图
-#### 首页
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd1.gif)
-#### 按钮图标等
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd2.gif)
-#### 轮播图
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd3.gif)
-#### 富文本
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd4.gif)
-#### 拖拽
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd5.gif)
-#### 画廊
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd6.gif)
-#### 动画
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd7.gif)
-#### 表格
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd8.gif)
-#### 表单
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd9.gif)
-#### 图表
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd10.gif)
-#### 页面
-![截图](https://raw.githubusercontent.com/yezihaohao/yezihaohao.github.io/master/imgs/rd11.gif)
 
 ### 代码目录
 ```js
@@ -135,82 +103,58 @@ react-admin system solution
 ```
 ### 安装运行
 ##### 1.下载或克隆项目源码
-##### 2.yarn 或者 npm安装相关包文件(首先推荐使用yarn，国内建议增加淘宝镜像源，不然很慢，你懂的😁)
+##### 2.npm安装相关包文件(国内建议增加淘宝镜像源，不然很慢)
 ```js
-yarn or npm i
+npm i or npm install
 ```
 ##### 3.启动项目
 ```js
-yarn start or npm start
+npm start
 ```
 ##### 4.打包项目
 ```js
-yarn build or npm run build
+npm run build
 ```
 
 ### 更新日志
 
-#### 2017-07-08
+#### 2018-08-31
 - 依赖包版本升级
     - react@15.6.1
-    - antd@2.11.2
     - webpack@2.6.1
     - 等等
-#### 2017-08-01
 - 引入redux系列
     - redux@3.7.2
     - redux-thunk@2.2.0
     - react-redux@5.0.5
 - 增加权限管理模块
-    - 使用easy-mock模拟数据模拟登录接口
     - 使用redux系列将登录用户数据传递给权限组件
     - 权限组件采用Render Callback的方式传递权限给需要受控制的组件（具体做法请查看源代码。）
     - 用户状态保存在localStorage中
     - 具体做法请运行项目查看
-    - PS：以上管理权限只是一种方式，但这绝对不是唯一的方式，也不是最好的方式。如果你有更好的方式，不妨加上面的群和大家一起分享下。😄😄
+    - PS：以上管理权限只是一种方式，但这绝对不是唯一的方式，也不是最好的方式。
 - 增加路径别名
     - 使用@别名处理引入组件相对路径过长问题。
     - 缺点：编辑器不能使用快捷提示和快捷跳转到相应的文件
-#### 2017-08-13
 - 权限管理模块增加页面跳转权限验证
     - 点击权限管理的路由拦截，若没有访问权限则会跳转到404页面。
     - 大致实现方式(非常简单)：通过向自定义router组件传入store，登录之后可获取到redux中的权限state数据，并通过判断是否包含权限进行跳转。ps: 该demo的效果是管理员登录之后才能跳转到路由拦截页面。具体操作请拉取代码尝试。
-#### 2017-08-26
 - 增加响应式布局
-    - 替换antd Col 组件的响应式栅格为md(具体参数用法请查看antd官方文档)
+    - 替换antd Col 组件的响应式栅格为md
     - 初始化页面是获取当前浏览器宽度设置菜单显示类型
     - 监听window的onresize函数，设置菜单显示类型。PS：浏览器宽度存入redux中，方便组件之间传递。
-![截图](https://raw.githubusercontent.com/yezihaohao/react-admin/master/src/style/imgs/mobile.gif)
-#### 2017-09-13
-- 依赖包版本升级
-    - antd@2.13.1(目前最新版)
-    
-#### 2017-10-21
 - 开发环境增加react-hot-loader-保持状态刷新组件(译：实时调整组件),可参考以下相关项目
     - [react-hot-loader](https://github.com/gaearon/react-hot-loader)
-
-#### 2017-12-12
 - 依赖包版本升级
-    - antd@3.0.1(目前最新版)
+    - antd@3.6.4(目前最新版)
     - react-router-dom@4.2.2
 - 大改动
-    - react-router切换4.x版本，切换响应的版本路由写法(具体见代码更新日志) 
+    - react-router切换4.x版本，切换响应的版本路由写法
     - ps: react-router 3.x的版本请查看代码分支router3.x
-    
-#### 2018-01-12
 - 增加cssmodule的支持（css, less）
     - 建议用css预处理器，文件名为xxx.module.less，引入相应组件即可使用。
-    - 具体做法参见新增模块，路由后缀：/app/cssModule。[点击访问](http://cheng_haohao.oschina.io/reactadmin/#/app/cssModule)
+    - 具体做法参见新增模块，路由后缀：/app/cssModule。
 
 ### 结尾
-该项目会不定时更新，后续时间会添加更多的模块
-
-欢迎和感谢大家PR~~👏👏
-
-若有问题，可加QQ群与我交流
-
-- 1群：264591039（已满）
-- 2群：592688854（已满）
-- 3群：743490497
 
 如果对你有帮助，给个star哟~~❤️❤️❤️❤️

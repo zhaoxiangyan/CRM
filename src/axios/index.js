@@ -2,17 +2,19 @@ import axios from 'axios';
 import { get } from './tools';
 import * as config from './config';
 
-export const getPros = () => axios.post('http://api.xitu.io/resources/github', {
-    category: "trending",
-    period: "day",
-    lang: "javascript",
-    offset: 0,
-    limit: 30
-}).then(function (response) {
-    return response.data;
-}).catch(function (error) {
-    console.log(error);
-});
+
+// 异步表格  考虑是否把接口都放在这里，，页面调用接口axios返回结果
+// export const getPros = () => axios.post('http://api.xitu.io/resources/github', {
+//     category: "trending",
+//     period: "day",
+//     lang: "javascript",
+//     offset: 0,
+//     limit: 30
+// }).then(function (response) {
+//     return response.data;
+// }).catch(function (error) {
+//     console.log(error);
+// });
 
 // export const npmDependencies = () => axios.get('http://localhost:3006/npm.json').then(res => res.data).catch(err => console.log(err));
 

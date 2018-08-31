@@ -1,6 +1,3 @@
-/**
- * Created by hao.cheng on 2017/4/16.
- */
 import React from 'react';
 import { Form, Icon, Input, Button, Checkbox, Menu, Dropdown, Alert } from 'antd';
 import { connect } from 'react-redux';
@@ -8,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { fetchData, receiveData, langData, authData } from '@/action';
 import {FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
-import axios from 'axios';
+import { post, API } from '../../axios/tools';
 
 const FormItem = Form.Item;
 
@@ -35,22 +32,18 @@ class Login extends React.Component {
             if (!err) {
                 console.log('Received values of form: ', values);
                     // 用户登录
-                    axios({
-                        method:'post',
-                        url:'https://api.gqfxcn.com/passport/login',
-                        data:values
+                    post({
+                        url:API.login,
+                        data:values,
                     }).then(res=>{
-                        if(res.data.is_succ){
-                            this.setState({errorstatus:res.data.is_succ});
-                            authData(res.data.data);
-                            localStorage.setItem('user', JSON.stringify(res.data.data));
+                        console.log("res:",res);
+                        if(res.is_succ){
+                            this.setState({errorstatus:res.is_succ});
+                            authData(res.data);
+                            localStorage.setItem('user', JSON.stringify(res.data));
                             this.props.history.push('/app/dashboard/index');
                         }else{
-                            this.setState({error:res.data.message,errorstatus:res.data.is_succ});
-                        }   
-                    }).catch(err=>{
-                        if(!err.response.data.is_succ){
-                            this.setState({error:err.response.data.message,errorstatus:err.response.data.is_succ});
+                            this.setState({error:res.message,errorstatus:res.is_succ});
                         }
                     })
                 // if (values.userName === 'guest' && values.password === 'guest') fetchData({funcName: 'guest', stateName: 'auth'});

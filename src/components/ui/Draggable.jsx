@@ -1,6 +1,3 @@
-/**
- * Created by hao.cheng on 2017/4/28.
- */
 import React from 'react';
 import { Row, Col, Card } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
@@ -42,7 +39,6 @@ class Drags extends React.Component {
                         <div className="gutter-box">
                             <Draggable zIndex={100} {...dragHandlers}>
                                 <Card bordered={false} className={'dragDemo'}>
-
                                     I can be dragged anywhere
                                 </Card>
                             </Draggable>

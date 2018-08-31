@@ -1,13 +1,10 @@
-/**
- *
- * 添加注释
- * Created by SEELE on 2018/1/12
- *
- */
 import React, { Component } from 'react';
 import { Col, Card, Row } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import styles from './index.module.less';
+// css module 局部样式，类似vue scoped
+// 需要配置webpack
+
 
 class Cssmodule extends Component {
     render() {

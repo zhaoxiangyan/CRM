@@ -1,6 +1,3 @@
-/**
- * Created by hao.cheng on 2017/5/6.
- */
 import React from 'react';
 import { Row, Col, Card } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
@@ -96,7 +93,7 @@ class Gallery extends React.Component {
                         </div>
                         <div className="pa-m">
                             <h3>React Admin</h3>
-                            <small><a href="https://yezihaohao.github.io/" target="_blank" rel="noopener noreferrer">https://yezihaohao.github.io/</a></small>
+                            <small><a href="https://crm.gqfxcn.com/" target="_blank" rel="noopener noreferrer">https://crm.gqfxcn.com/</a></small>
                         </div>
                     </Card>
                 </div>
@@ -123,31 +120,20 @@ class Gallery extends React.Component {
                     </Col>
                 </Row>
                 <div className="pswp" tabIndex="-1" role="dialog" aria-hidden="true" ref={(div) => {this.pswpElement = div;} }>
-
                     <div className="pswp__bg" />
-
                     <div className="pswp__scroll-wrap">
-
                         <div className="pswp__container">
                             <div className="pswp__item" />
                             <div className="pswp__item" />
                             <div className="pswp__item" />
                         </div>
-
                         <div className="pswp__ui pswp__ui--hidden">
-
                             <div className="pswp__top-bar">
-
                                 <div className="pswp__counter" />
-
                                 <button className="pswp__button pswp__button--close" title="Close (Esc)" />
-
                                 <button className="pswp__button pswp__button--share" title="Share" />
-
                                 <button className="pswp__button pswp__button--fs" title="Toggle fullscreen" />
-
                                 <button className="pswp__button pswp__button--zoom" title="Zoom in/out" />
-
                                 <div className="pswp__preloader">
                                     <div className="pswp__preloader__icn">
                                         <div className="pswp__preloader__cut">
@@ -156,23 +142,16 @@ class Gallery extends React.Component {
                                     </div>
                                 </div>
                             </div>
-
                             <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
                                 <div className="pswp__share-tooltip" />
                             </div>
-
                             <button className="pswp__button pswp__button--arrow--left" title="Previous (arrow left)" />
-
                             <button className="pswp__button pswp__button--arrow--right" title="Next (arrow right)" />
-
                             <div className="pswp__caption">
                                 <div className="pswp__caption__center" />
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
                 <style>{`
                     .ant-card-body img {

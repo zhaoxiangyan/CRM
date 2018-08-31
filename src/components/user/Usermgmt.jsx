@@ -3,10 +3,8 @@ import React, {Component} from 'react';
 import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Cascader, Switch, Upload, Radio, message } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
-import axios from 'axios';
+import { get, API } from '../../axios/tools';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { receiveUser } from '@/action';
 import moment from 'moment';
 import EditUsermgmt from './Edit_usermgmt';
 import {Link,Route} from 'react-router-dom';
@@ -138,7 +136,7 @@ class Usermgmt extends Component {
          // 总条数
          total:50
     };
-    componentDidMount(){ 
+    componentWillMount(){
         this.getUsers();
     }
     componentWillUnmount = () => {
@@ -149,20 +147,17 @@ class Usermgmt extends Component {
     // 获取用户列表
     getUsers = () => {
         console.log(this.state.search);
-        const { receiveUser } = this.props;
         this.setState({loading:true});
-        axios.get('https://api.gqfxcn.com/users',{
-            data:this.state.search
+        get({
+            url:API.users,
+            data:this.state.search,
+            headers:{headers:{'lang': 'ass'}}
         }).then(res=>{
             console.log("res:",res);
-            if(res.data.is_succ){
-                receiveUser(res.data.data,'user');
-                this.setState({data:res.data.data,loading:false});
-            } 
-        }).catch(err=>{
-            console.log("err:",err);
-            if(!err.response.data.is_succ){
-                message.error(err.response.data.message);
+            if(res.is_succ){
+                this.setState({data:res.data,loading:false});
+            }else{
+                message.error(res.message);
             }
         })
     }
@@ -261,7 +256,7 @@ class Usermgmt extends Component {
         return e && e.fileList;
     }
     render() {
-        const {user,intl} = this.props;
+        const {intl} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
         // 表格 Table
         const rowSelection = {
@@ -275,17 +270,23 @@ class Usermgmt extends Component {
         const formItemLayout2 = {labelCol: { span: 5 },wrapperCol: { span: 19, offset:5 }};
         const { getFieldDecorator } = this.props.form;
         // 手机select
-        const inputBefore = (
+        const {code} = this.props;
+        const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
                 style={{ width: 80 }}
                 placeholder="选择国家/地区代码"
                 optionFilterProp="children"
-                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                optionLabelProp="value"
+                dropdownMatchSelectWidth={false}
+                filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
+                onChange={this.phoneChange}
             >
-                <Option value="+86">中国大陆</Option>
-                <Option value="+886">台湾</Option>
-                <Option value="+852">香港</Option>
+            {code.map(r=>{
+                return (
+                    <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
+                )
+            })}
             </Select>
         )
         return (
@@ -359,7 +360,7 @@ class Usermgmt extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
+                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={this.state.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
                                     <Pagination size="small" total={this.state.data.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
                                 </div>
@@ -642,13 +643,10 @@ class Usermgmt extends Component {
 }
 
 const mapStateToProps = state => {
-    const { user = {data: {}} } = state.httpUser;
-    return {user};
+    const { code = {data: {}} } = state.httpData;
+    return {code};
 };
 
-const mapDispatchToProps = dispatch => ({
-    receiveUser: bindActionCreators(receiveUser, dispatch)
-});
 
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Usermgmt)));
+export default connect(mapStateToProps)(injectIntl(Form.create()(Usermgmt)));
 // export default Usermgmt;

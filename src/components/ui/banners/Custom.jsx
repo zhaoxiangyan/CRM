@@ -1,6 +1,3 @@
-/**
- * Created by hao.cheng on 2017/4/26.
- */
 import React from 'react';
 import BannerAnim from 'rc-banner-anim';
 import TweenOne, { TweenOneGroup } from 'rc-tween-one';

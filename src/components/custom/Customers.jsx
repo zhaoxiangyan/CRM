@@ -1,14 +1,12 @@
 // 客戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal, Popover } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Upload, Modal, Popover, message } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
-import axios from 'axios';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { receiveUser } from '@/action';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
+import { post, CRM } from '../../axios/tools';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
@@ -138,7 +136,7 @@ class Customers extends Component {
         total:50
 
     };
-    componentDidMount(){
+    componentWillMount(){
         this.getCustomerlists();
     }
     componentWillUnmount = () => {
@@ -149,18 +147,17 @@ class Customers extends Component {
     // 获取客户列表
     getCustomerlists = () => {
         console.log(this.state.search);
-        const { receiveUser } = this.props;
         this.setState({loading:true});
-        axios({
-            method:'post',
-            url:'/api/api/admin/getcustomerlists',
-            data:this.state.search
-        }).then((res)=>{
+        post({
+            url:CRM.getcustomerlists,
+            data:this.state.search,
+        }).then(res=>{
             console.log("res:",res);
-            receiveUser(res.data.data,'user');
-            this.setState({data:res.data.data,loading:false});
-        }).catch((err)=>{
-            console.log("err:",err);
+            if(res.is_succ){
+                this.setState({data:res.data,loading:false});
+            }else{
+                message.error(res.message);
+            }
         })
     }
     start = () => {
@@ -277,7 +274,7 @@ class Customers extends Component {
         });
     };
     render() {
-        const {user,intl} = this.props;
+        const {intl} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
         // 表格 Table
         const rowSelection = {
@@ -398,7 +395,7 @@ class Customers extends Component {
                                     </InputGroup>
                                     </div>}
                                 </div>
-                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
+                                <Table onChange={this.sorterChange} rowSelection={rowSelection} columns={columns} dataSource={this.state.data.data} loading={loading} scroll={{x:1400}} size={'small'} pagination={false} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
                                     <Button style={{float:'left'}} size="small" title="回收站"><Icon type="delete" /></Button>
                                     <Pagination size="small" total={this.state.data.total} showTotal={this.showTotal} showSizeChanger showQuickJumper onChange={this.pageChange} onShowSizeChange={this.pagesizeChange} />
@@ -577,13 +574,9 @@ class Customers extends Component {
 }
 
 const mapStateToProps = state => {
-    const { user = {data: {}} } = state.httpUser;
     const { code = {data: {}} } = state.httpData;
-    return {user,code};
+    return {code};
 };
 
-const mapDispatchToProps = dispatch => ({
-    receiveUser: bindActionCreators(receiveUser, dispatch)
-});
 
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Form.create()(Customers)));
+export default connect(mapStateToProps)(injectIntl(Form.create()(Customers)));

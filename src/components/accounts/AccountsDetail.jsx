@@ -5,6 +5,7 @@ import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import styles from './index.module.less';
 
 
 const TabPane = Tabs.TabPane;
@@ -206,7 +207,7 @@ class CustomersDetail extends Component{
                                 </div>
                             </Row>}
                        >
-                            <table className="money_table">
+                            <table className={styles.money_table}>
                                 <tbody>
                                     <tr>
                                         <th>余额：</th>
@@ -240,7 +241,7 @@ class CustomersDetail extends Component{
                             extra={this.state.modify&&<a href=" javascript:void(0)" style={{verticalAlign:'middle'}} onClick={this.onModify}><Icon type="form" />修改</a>} 
                             bordered={false} 
                             style={{marginBottom:15}}
-                            className={this.state.modify&&'disabledcard1'}
+                            className={this.state.datamodify&&'disabledcard1'}
                        >    
                             <FormItem {...formItemLayout} label="MT组" style={{marginBottom:10}}>
                                 {getFieldDecorator('mtgroup', {
@@ -312,7 +313,7 @@ class CustomersDetail extends Component{
                                 <TabPane key="1" tab="交易记录">
                                     <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
                                     <div>
-                                        <div className="table_title">出入金记录（{data1.length}）</div>
+                                        <div className={styles.table_title}>出入金记录（{data1.length}）</div>
                                         <Table size="middle" dataSource={data1}>
                                             <Column
                                                 title="时间（UTC-3）"
@@ -340,7 +341,7 @@ class CustomersDetail extends Component{
                                                 align="center"
                                             />
                                         </Table>
-                                        <div className="table_title">持仓（{data2.length}）</div>
+                                        <div className={styles.table_title}>持仓（{data2.length}）</div>
                                         <Table size="middle" dataSource={data2}>
                                             <Column
                                                 title="开仓时间（UTC-3）"
@@ -380,7 +381,7 @@ class CustomersDetail extends Component{
                                                 align="center"
                                             />
                                         </Table>
-                                        <div className="table_title">交易历史（{data3.length}）</div>
+                                        <div className={styles.table_title}>交易历史（{data3.length}）</div>
                                         <Table size="middle" dataSource={data3}>
                                             <Column
                                                 title="平仓时间（UTC-3）"
@@ -420,7 +421,7 @@ class CustomersDetail extends Component{
                                                 align="center"
                                             />
                                         </Table>
-                                        <div className="table_title">挂单（{data4.length}）</div>
+                                        <div className={styles.table_title}>挂单（{data4.length}）</div>
                                         <Table size="middle" dataSource={data4}>
                                             <Column
                                                 title="挂单时间（UTC-3）"

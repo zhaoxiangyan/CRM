@@ -1,9 +1,3 @@
-/**
- * Created by 叶子 on 2017/8/1.
- */
-/**
- * Created by 叶子 on 2017/7/31.
- */
 import React, { Component } from 'react';
 import { Row, Col, Card } from 'antd';
 import BreadcrumbCustom from '@/components/BreadcrumbCustom';
@@ -33,5 +27,4 @@ class RouterEnter extends Component {
     }
 }
 
-// 为什么 游客会跳转到404
 export default RouterEnter;

@@ -1,11 +1,5 @@
-/**
- * Created by hao.cheng on 2017/4/13.
- */
 import React, { Component } from 'react';
 import { Card, Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button } from 'antd';
-import LoginForm from './LoginForm';
-import ModalForm from './ModalForm';
-import HorizontalForm from './HorizontalForm';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -218,29 +212,6 @@ class BasicForms extends Component {
                                     <Button type="primary" htmlType="submit" size="large">注册</Button>
                                 </FormItem>
                             </Form>
-                        </Card>
-                    </div>
-                </Col>
-                <Col className="gutter-row" md={12}>
-                    <div className="gutter-box">
-                        <Card title="登录表单" bordered={false}>
-                            <LoginForm />
-                        </Card>
-                    </div>
-                </Col>
-            </Row>
-            <Row gutter={16}>
-                <Col className="gutter-row" md={14}>
-                    <div className="gutter-box">
-                        <Card title="水平表单" bordered={false}>
-                            <HorizontalForm />
-                        </Card>
-                    </div>
-                </Col>
-                <Col className="gutter-row" md={10}>
-                    <div className="gutter-box">
-                        <Card title="弹层表单" bordered={false}>
-                            <ModalForm />
                         </Card>
                     </div>
                 </Col>

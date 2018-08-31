@@ -42,8 +42,6 @@ export default {
             key: '/app/table', title: 'Table', icon: 'copy',
             subs: [
                 { key: '/app/table/basicTable', title: 'Base table', component: 'BasicTable'},
-                { key: '/app/table/advancedTable', title: 'Advanced table', component: 'AdvancedTable'},
-                { key: '/app/table/asynchronousTable', title: 'Asynchronous table', component: 'AsynchronousTable'},
             ],
         },
         {
@@ -63,6 +61,7 @@ export default {
             key: '/subs4', title: 'Page', icon: 'switcher',
             subs: [
                 { key: '/login', title: 'Sign in' },
+                { key: '/findpassword', title: 'Find Password' },
                 { key: '/404', title: '404' },
             ],
         },

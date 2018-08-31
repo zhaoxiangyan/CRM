@@ -7,7 +7,7 @@ import screenfull from 'screenfull';
 import SiderCustom from './SiderCustom';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import axios from 'axios';
+import { get, API } from '../axios/tools';
 import {FormattedMessage} from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { langData } from '@/action';
@@ -23,13 +23,15 @@ class HeaderCustom extends Component {
     };
     componentDidMount() {
         // 获取登录用户资料
-        axios.get('https://api.gqfxcn.com/userinfo').then(res=>{
-            if(res.data.is_succ){
-                this.setState({user: res.data.data});
-            }  
-        }).catch(err=>{
-            if(!err.response.data.is_succ){
-                message.error(err.response.data.message);
+        get({
+            url:API.userinfo,
+            headers:{headers:{'lang': 'ass'}}
+        }).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
+                this.setState({user: res.data});
+            }else{
+                message.error(res.message);
             }
         })
         // 外部接口proxy
@@ -101,20 +103,15 @@ class HeaderCustom extends Component {
     };
     logout = () => {
         // 用户退出登录
-        axios({
-            method:'get',
-            url:'https://api.gqfxcn.com/passport/logout'
-        }).then(res=>{
-            if(res.data.is_succ){
+        get({url:API.logout}).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
                 localStorage.removeItem('user');
                 this.props.history.push('/login')
-            }  
-        }).catch(err=>{
-            if(!err.response.data.is_succ){
-                message.error(err.response.data.message);
+            }else{
+                message.error(res.message);
             }
-        })
-        
+        })   
     };
     popoverHide = () => {
         this.setState({

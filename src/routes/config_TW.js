@@ -42,8 +42,6 @@ export default {
             key: '/app/table', title: '表格', icon: 'copy',
             subs: [
                 { key: '/app/table/basicTable', title: '基礎表格', component: 'BasicTable'},
-                { key: '/app/table/advancedTable', title: '高級表格', component: 'AdvancedTable'},
-                { key: '/app/table/asynchronousTable', title: '異步表格', component: 'AsynchronousTable'},
             ],
         },
         {
@@ -63,6 +61,7 @@ export default {
             key: '/subs4', title: '頁面', icon: 'switcher',
             subs: [
                 { key: '/login', title: '登錄' },
+                { key: '/findpassword', title: '忘記密碼' },
                 { key: '/404', title: '404' },
             ],
         },

@@ -6,7 +6,7 @@ import {FormattedMessage,injectIntl} from 'react-intl';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
-import { post, CRM } from '../../axios/tools';
+import { get, CRM } from '../../axios/tools';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
@@ -72,23 +72,23 @@ const columns = [{
     title: <FormattedMessage id="custom.customers.th13" />,
     dataIndex: 'account',
     align:'center',
-    render:text=>{
-        if(text.length === 0){
-            return <span />;
-        }else if(text.length === 1){
-            return <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}</Link>;
-        }else{
-            return <Popover 
-                    content={<div>
-                        {text.map( (v,i) =>(
-                            <p key={i} style={{marginBottom:0}}><Link to={"/app/accounts/"+v.number} target="_blank">{v.number}</Link></p>
-                        ))}
-                    </div>}
-                   >
-                        <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}&nbsp;...</Link>
-                   </Popover>;
-        }
-    }
+    // render:text=>{
+    //     if(text.length === 0){
+    //         return <span />;
+    //     }else if(text.length === 1){
+    //         return <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}</Link>;
+    //     }else{
+    //         return <Popover 
+    //                 content={<div>
+    //                     {text.map( (v,i) =>(
+    //                         <p key={i} style={{marginBottom:0}}><Link to={"/app/accounts/"+v.number} target="_blank">{v.number}</Link></p>
+    //                     ))}
+    //                 </div>}
+    //                >
+    //                     <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}&nbsp;...</Link>
+    //                </Popover>;
+    //     }
+    // }
 }, {
     title: <FormattedMessage id="custom.customers.th14" />,
     dataIndex: 'status_name',
@@ -148,7 +148,7 @@ class Customers extends Component {
     getCustomerlists = () => {
         console.log(this.state.search);
         this.setState({loading:true});
-        post({
+        get({
             url:CRM.getcustomerlists,
             data:this.state.search,
         }).then(res=>{

@@ -9,7 +9,7 @@
     "user.select":"Selected {name} items",
     "user.brokerwork.title":"Broker Work Users",   
     "user.brokerwork.add":"Add",
-    "user.registertime":"Registration Time",
+    "registertime":"Registration Time",
     "cancel":"Cancel",
     "delete":"Delete",
     "user.brokerwork.transfer":"Batch Transfer",

@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { fetchData, receiveData, langData, authData } from '@/action';
 import {FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
-import { post, API } from '../../axios/tools';
+import { post, CRM } from '../../axios/tools';
 
 const FormItem = Form.Item;
 
@@ -33,7 +33,7 @@ class Login extends React.Component {
                 console.log('Received values of form: ', values);
                     // 用户登录
                     post({
-                        url:API.login,
+                        url:CRM.login,
                         data:values,
                     }).then(res=>{
                         console.log("res:",res);

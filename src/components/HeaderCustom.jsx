@@ -7,10 +7,10 @@ import screenfull from 'screenfull';
 import SiderCustom from './SiderCustom';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { get, API } from '../axios/tools';
+import { get, CRM } from '../axios/tools';
 import {FormattedMessage} from 'react-intl';
 import { bindActionCreators } from 'redux';
-import { langData } from '@/action';
+import { langData,receiveUser } from '@/action';
 const { Header } = Layout;
 const SubMenu = Menu.SubMenu;
 
@@ -22,13 +22,14 @@ class HeaderCustom extends Component {
         full:false
     };
     componentDidMount() {
+        const { receiveUser } = this.props;
         // 获取登录用户资料
         get({
-            url:API.userinfo,
-            headers:{headers:{'lang': 'ass'}}
+            url:CRM.userinfo
         }).then(res=>{
             console.log("res:",res);
             if(res.is_succ){
+                receiveUser(res.data, 'user');
                 this.setState({user: res.data});
             }else{
                 message.error(res.message);
@@ -103,7 +104,7 @@ class HeaderCustom extends Component {
     };
     logout = () => {
         // 用户退出登录
-        get({url:API.logout}).then(res=>{
+        get({url:CRM.logout}).then(res=>{
             console.log("res:",res);
             if(res.is_succ){
                 localStorage.removeItem('user');
@@ -187,7 +188,8 @@ const mapStateToProps = state => {
     return {responsive};
 };
 const mapDispatchToProps = dispatch => ({
-    langData: bindActionCreators(langData, dispatch)
+    langData: bindActionCreators(langData, dispatch),
+    receiveUser: bindActionCreators(receiveUser, dispatch)
 });
 
 export default withRouter(connect(mapStateToProps,mapDispatchToProps)(HeaderCustom));

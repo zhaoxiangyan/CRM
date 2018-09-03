@@ -9,7 +9,7 @@
     "user.select":"已選中 {name} 項",
     "user.brokerwork.title":"用戶管理",   
     "user.brokerwork.add":"添加",
-    "user.registertime":"註冊時間",
+    "registertime":"註冊時間",
     "cancel":"取消",
     "delete":"刪除",
     "user.brokerwork.transfer":"批量劃轉",

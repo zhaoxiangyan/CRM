@@ -1,5 +1,6 @@
 import React,{Component} from 'react';
-import { Row, Col, Card, Button, Icon, Select, Input, Drawer, Form, Cascader, Switch, Upload, Radio } from 'antd';
+import { Row, Col, Card, Button, Icon, Select, Input, Drawer, Form, Cascader, Switch, Upload, Radio, message } from 'antd';
+import { get, CRM } from '../../axios/tools';
 
 // this.props.match.params.userid 动态传参
 const Option = Select.Option;
@@ -37,16 +38,32 @@ class EditUsermgmt extends Component{
         // 抽屉
         visible:false,
         // 登录密码框类型
-        passwordType:true
+        passwordType:true,
+        // 用户资料
+        data:{}
     };
     componentDidMount(){
+        // 获取用户资料
+        get({
+            url:CRM.userdetail+this.props.match.params.userid,
+            data:{
+                id:this.props.match.params.userid
+            }
+        }).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
+                this.setState({data:res.data});
+            }else{
+                message.error(res.message);
+            }
+        })
         this.setState({visible:true}); 
     }
     // 抽屉
     onClose = () => {
         this.setState({visible: false});
-        // return <Redirect to="/app/user/mgmt" />;
-        this.props.history.push('/app/user/mgmt');
+        // return <Redirect to="/app/user/usermgmt" />;
+        this.props.history.push('/app/user/usermgmt');
     };
     // 切换登录密码框类型
     switchPassword = () => {

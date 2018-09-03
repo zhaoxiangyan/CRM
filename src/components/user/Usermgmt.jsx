@@ -1,9 +1,10 @@
 // Broker Work 用戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, Drawer, Form, Cascader, Switch, Upload, Radio, message } from 'antd';
+import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, 
+    Pagination, Drawer, Form, Cascader, Switch, Upload, Radio, message, Modal } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
-import { get, API } from '../../axios/tools';
+import { get, post, CRM } from '../../axios/tools';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import EditUsermgmt from './Edit_usermgmt';
@@ -120,21 +121,25 @@ class Usermgmt extends Component {
         passwordType:true,
         // 查询条件
         search:{
-            type:'0',
-            status:'0',
-            timetype:'1',
-            start:'',
-            end:'',
-            source:'0',
-            keywordtype:'1',
+            maid_level:'',
+            start_time:'',
+            end_time:'',
+            keyword_type:'name',
             keyword:'',
             page:'1',
-            pagesize:'10',
+            pageSize:'10',
             sorttype:'',
             sortname:''
          },
          // 总条数
-         total:50
+         total:50,
+        //  批量划转Modal
+        transferVisible:false,
+        transferLoading:false,
+        transferData:[],
+        transferValue:undefined,
+        // 账号服务器
+        agent_hosts:[],
     };
     componentWillMount(){
         this.getUsers();
@@ -149,9 +154,8 @@ class Usermgmt extends Component {
         console.log(this.state.search);
         this.setState({loading:true});
         get({
-            url:API.users,
-            data:this.state.search,
-            headers:{headers:{'lang': 'ass'}}
+            url:CRM.users,
+            data:this.state.search
         }).then(res=>{
             console.log("res:",res);
             if(res.is_succ){
@@ -170,30 +174,45 @@ class Usermgmt extends Component {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
     }
-    // 第一个select
+    // 第一个select 可搜索
     handleChange1 = (value) => {
         console.log(`selected ${value}`);
     }
-    // 第二个select
-    handleChange2 = (value) => {
-        console.log(`selected ${value}`);
+    // 第二个select  所有层级
+    handleChange2 = (maid_level) => {
+        this.setState({search:{...this.state.search,maid_level}},()=>{
+            this.getUsers();
+        }); 
     }
-    // 时间选择器
+    // 时间选择器  创建时间
     onChange3 = (dates, dateStrings) => {
         console.log('From: ', dates[0], ', to: ', dates[1]);
         console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+        this.setState({search:{...this.state.search,'start_time':dateStrings[0],'end_time':dateStrings[1]}},()=>{
+            this.getUsers();
+        }); 
+    }
+    // 第三个select 姓名
+    handleChange4 = (keyword_type) => {
+        this.setState({search:{...this.state.search,keyword_type}}); 
+    }
+    // 关键词搜索
+    handleSearch = (keyword) => {
+        this.setState({search:{...this.state.search,keyword}},()=>{
+            this.getUsers();
+        }); 
     }
     // 分页器
     showTotal = (total) => {
         return `Total ${total} items`;
     }
-    pageChange = (page,pagesize) => {
-        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+    pageChange = (page,pageSize) => {
+        this.setState({search:{...this.state.search,page,pageSize}},()=>{
             this.getUsers();
         }); 
     }
-    pagesizeChange = (page,pagesize) => {
-        this.setState({search:{...this.state.search,page,pagesize}},()=>{
+    pagesizeChange = (page,pageSize) => {
+        this.setState({search:{...this.state.search,page,pageSize}},()=>{
             this.getUsers();
         }); 
     }
@@ -204,9 +223,49 @@ class Usermgmt extends Component {
             this.getUsers();
         });
     }
+    // 批量划转Modal
+    transferModal = () => {
+        this.setState({transferVisible:true})
+    }
+    transferOk = () => {
+        console.log(this.state.selectedRowKeys);
+        this.setState({ transferLoading: true });
+        post({
+            url:CRM.usertransfer,
+            data:{
+                id:this.state.selectedRowKeys,
+                user_id:3
+            }
+        }).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
+                this.setState({ transferLoading: false, transferVisible: false });
+            }else{
+                message.error(res.message);
+            }
+        })
+    }
+    transferCancel = () => {
+        this.setState({ transferVisible: false });
+    }
+    transferSearch = (value) => {
+        
+    }
+    transferChange = (value) => {
+        
+    }
     // 抽屉  添加
     showDrawer = () => {
-        this.setState({visible:true})
+        // 获取账号服务器
+        get({url:CRM.hosts}).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
+                this.setState({agent_hosts:res.data});
+            }else{
+                message.error(res.message);
+            }
+        })
+        this.setState({visible:true})    
     }
     onClose = () => {
         this.setState({visible: false});
@@ -255,9 +314,32 @@ class Usermgmt extends Component {
         }
         return e && e.fileList;
     }
+    drawerSubmit = (e) => {
+        e.preventDefault();
+        this.props.form.validateFields((err, values) => {
+            console.log(values);
+            if (!err) {
+                console.log('Received values of form: ', values);
+                    // 用户登录
+                    post({
+                        url:CRM.usercreate,
+                        data:values,
+                    }).then(res=>{
+                        console.log("res:",res);
+                        if(res.is_succ){
+                            
+                        }else{
+                            
+                        }
+                    })
+            }
+        });
+    };
     render() {
-        const {intl} = this.props;
+        const {intl,user,code,auth} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
+        // 批量划转
+        const transferOptions = this.state.transferData.map(d => <Option key={d.value}>{d.text}</Option>);
         // 表格 Table
         const rowSelection = {
             selectedRowKeys,
@@ -268,10 +350,9 @@ class Usermgmt extends Component {
         const formItemLayout = {labelCol: { span: 10 },wrapperCol: { span: 14 }};
         const formItemLayout1 = {labelCol: { span: 5 },wrapperCol: { span: 19 }};
         const formItemLayout2 = {labelCol: { span: 5 },wrapperCol: { span: 19, offset:5 }};
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator,getFieldValue } = this.props.form;
         // 手机select
-        const {code} = this.props;
-        const inputBefore = getFieldDecorator('code')(
+        const inputBefore = getFieldDecorator('user.mobile_prefix')(
             <Select
                 showSearch
                 style={{ width: 80 }}
@@ -304,7 +385,7 @@ class Usermgmt extends Component {
                                         </span>
                                         <Button type="primary" onClick={this.start} disabled={!hasSelected} loading={reloadloading}><FormattedMessage id="cancel" /></Button>
                                         <Button type="primary" ><FormattedMessage id="delete" /></Button>
-                                        <Button type="primary" ><FormattedMessage id="user.brokerwork.transfer" /></Button>
+                                        <Button type="primary" onClick={this.transferModal} ><FormattedMessage id="user.brokerwork.transfer" /></Button>
                                         <Button type="primary" ><FormattedMessage id="send" /></Button>
                                     </div>
                                     :
@@ -344,17 +425,22 @@ class Usermgmt extends Component {
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
                                             <InputGroup compact>
-                                                <Button><FormattedMessage id="user.registertime" /></Button>
+                                                <Button><FormattedMessage id="registertime" /></Button>
                                                 <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
                                             </InputGroup>
                                         </span>
                                         <span style={{float:'right'}}>
                                             <InputGroup compact >
-                                            <Select defaultValue="Sign Up" >
-                                                <Option value="Sign Up">Sign Up</Option>
-                                                <Option value="Sign In">Sign In</Option>
+                                            <Select defaultValue="name" onChange={this.handleChange4} >
+                                                <Option value="name">姓名</Option>
+                                                <Option value="maid_account">返佣账号</Option>
+                                                <Option value="number">用户编号</Option>
+                                                <Option value="parent_name">上级用户</Option>
+                                                <Option value="role_name">角色</Option>
+                                                <Option value="email">邮箱</Option>
+                                                <Option value="mobile">手机</Option>
                                             </Select>
-                                            <Search placeholder="input search text" onSearch={value => console.log(value)} enterButton style={{width:180}} />
+                                            <Search placeholder="input search text" onSearch={this.handleSearch} enterButton style={{width:180}} />
                                             </InputGroup>
                                         </span>
                                     </InputGroup>
@@ -369,7 +455,7 @@ class Usermgmt extends Component {
                     </Col>
                 </Row>
                 <Drawer title="添加用户" width={900} placement="right" onClose={this.onClose} visible={this.state.visible} style={{height: 'calc(100% - 55px)',overflow: 'auto',paddingBottom: 53}}> 
-                    <Form>
+                    <Form onSubmit={this.drawerSubmit}>
                         <Card title="基本资料" bordered={false} >
                             <Row>
                                 <Col span={11}>
@@ -377,14 +463,14 @@ class Usermgmt extends Component {
                                         <Input placeholder="未填写可自动生成" />
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="邮箱" style={{marginBottom:10}}>
-                                        {getFieldDecorator('email', {
+                                        {getFieldDecorator('user.email', {
                                             rules: [{ required: true, message: '请输入邮箱!' }],
                                         })(
                                             <Input placeholder="" />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="手机" style={{marginBottom:10}}>
-                                        {getFieldDecorator('phone', {
+                                        {getFieldDecorator('user.mobile', {
                                             rules: [{ required: false, message: '请输入手机号码!' }],
                                         })(
                                             <Input addonBefore={inputBefore} placeholder="" />
@@ -400,14 +486,14 @@ class Usermgmt extends Component {
                                 </Col>
                                 <Col span={11}>
                                     <FormItem {...formItemLayout} label="姓名" style={{marginBottom:10}}>
-                                        {getFieldDecorator('name', {
+                                        {getFieldDecorator('user.name', {
                                             rules: [{ required: true, message: '请输入姓名!' }],
                                         })(
                                             <Input placeholder="" />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="登录密码" style={{marginBottom:10}}>
-                                        {getFieldDecorator('password', {
+                                        {getFieldDecorator('user.password', {
                                             rules: [{ required: false, message: '请输入登录密码!' }],
                                         })(
                                             <div style={{position:'relative'}}>
@@ -417,39 +503,39 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="角色" style={{marginBottom:10}}>
-                                        {getFieldDecorator('role', {
+                                        {getFieldDecorator('user.role_id', {
                                             rules: [{ required: true, message: '请选择角色!' }],
                                         })(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value="S Manager">S Manager</Option>
+                                                <Option value={user.data.user_id}>{user.data.id}....未知数据</Option>
                                             </Select>
                                         )}
                                     </FormItem>
                                 </Col>
                                 <Col span={22}>
                                     <FormItem {...formItemLayout1} label="详细地址" style={{marginBottom:10}}>
-                                        {getFieldDecorator('address', {
+                                        {getFieldDecorator('userData.address', {
                                             rules: [{ required: false, message: '请输入详细地址!' }],
                                         })(
                                             <TextArea rows={2} />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="备注" style={{marginBottom:10}}>
-                                        {getFieldDecorator('remarks', {
+                                        {getFieldDecorator('userData.comment', {
                                             rules: [{ required: false, message: '请输入备注!' }],
                                         })(
                                             <TextArea rows={3} />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="首次登录修改初始密码" style={{marginBottom:10}}>
-                                        {getFieldDecorator('firstpassword', {
+                                        {getFieldDecorator('user.modify_password', {
                                             rules: [{ required: false, message: '!' }],
                                         })(
                                             <Switch defaultChecked onChange={this.switchChange1} />,
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="发送用户创建邮件" style={{marginBottom:10}}>
-                                        {getFieldDecorator('sendemail', {
+                                        {getFieldDecorator('customerAccount.is_send_mail', {
                                             rules: [{ required: false, message: '!' }],
                                         })(
                                             <Switch defaultChecked onChange={this.switchChange2} />,
@@ -462,7 +548,7 @@ class Usermgmt extends Component {
                             <Row>
                                 <Col span={22}>
                                     <FormItem {...formItemLayout1} label="身份证明类型" style={{marginBottom:10}}>
-                                        {getFieldDecorator('identitytype')(
+                                        {getFieldDecorator('userData.proof_of_identity')(
                                             <Select style={{ width: '100%' }}>
                                                 <Option value="Business License">Business License</Option>
                                                 <Option value="Organization Code certificate">Organization Code certificate</Option>
@@ -470,16 +556,23 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="身份证明号码" style={{marginBottom:10}}>
-                                        {getFieldDecorator('idnumber')(
+                                        {getFieldDecorator('userData.proof_of_identity_number')(
                                             <Input />
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="身份证明A" style={{marginBottom:10}}>
-                                        {getFieldDecorator('idphotoa', {
+                                        {getFieldDecorator('userData.proof_of_identity_img_a', {
                                                 valuePropName: 'fileList',
                                                 getValueFromEvent: this.normFile1,
                                             })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
+                                            <Upload 
+                                            action={CRM.userupload} 
+                                            listType="picture"
+                                            headers={{'Authorization':'Bearer '+auth.data.access_token}}
+                                            data={
+                                                (s)=>{ return {'file':s,'type':'proof_of_identity_img_a'}}
+                                            }
+                                            >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
@@ -487,7 +580,7 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="身份证明B" style={{marginBottom:10}}>
-                                        {getFieldDecorator('idphotob', {
+                                        {getFieldDecorator('userData.proof_of_identity_img_b', {
                                                 valuePropName: 'fileList',
                                                 getValueFromEvent: this.normFile2,
                                             })(
@@ -499,16 +592,16 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="银行卡开户行" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bankofdeposit')(
+                                        {getFieldDecorator('userData.bank')(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value="Bank of China">Bank of China</Option>
-                                                <Option value="China Construction Bank">China Construction Bank</Option>
-                                                <Option value="China Citic Bank">China Citic Bank</Option>
+                                                <Option value="1">Bank of China</Option>
+                                                <Option value="2">China Construction Bank</Option>
+                                                <Option value="3">China Citic Bank</Option>
                                             </Select>
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="银行账号" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bankaccount')(
+                                        {getFieldDecorator('userData.bank_card_number')(
                                             <Input />
                                         )}
                                     </FormItem>
@@ -537,21 +630,21 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="是否做过代理业务" style={{marginBottom:10}}>
-                                        {getFieldDecorator('havebusiness')(
+                                        {getFieldDecorator('userData.agency_experience')(
                                             <Switch defaultChecked />,
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="您有多少年投资股票、基金、外汇、金融衍生品等风险投资品的经验" style={{marginBottom:10}}>
-                                        {getFieldDecorator('howlong')(
+                                        {getFieldDecorator('userData.investing_year')(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value="Less than 2 years">Less than 2 years</Option>
-                                                <Option value="2 years to 5 years">2 years to 5 years</Option>
-                                                <Option value="5 years to 8 years">5 years to 8 years</Option>
+                                                <Option value="1">Less than 2 years</Option>
+                                                <Option value="2">2 years to 5 years</Option>
+                                                <Option value="3">5 years to 8 years</Option>
                                             </Select>
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="支行地址" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bankaddress')(
+                                        {getFieldDecorator('userData.bank_address')(
                                             <TextArea rows={2} />
                                         )}
                                     </FormItem>
@@ -562,11 +655,11 @@ class Usermgmt extends Component {
                             <Row>
                                 <Col span={11}>
                                     <FormItem {...formItemLayout} label="返佣层级" style={{marginBottom:10}}>
-                                        {getFieldDecorator('commissionlevel')(
+                                        {getFieldDecorator('userData.maid_level')(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value="CEO">CEO</Option>
-                                                <Option value="Head of Sales">Head of Sales</Option>
-                                                <Option value="Sales">Sales</Option>
+                                                <Option value="1">CEO</Option>
+                                                <Option value="2">Head of Sales</Option>
+                                                <Option value="3">Sales</Option>
                                             </Select>
                                         )}
                                     </FormItem>
@@ -592,50 +685,187 @@ class Usermgmt extends Component {
                             <Row>
                                 <Col span={22}>
                                     <FormItem {...formItemLayout2} style={{marginBottom:10}}>
-                                        {getFieldDecorator('commissionaccount')(
+                                        {getFieldDecorator('customerAccount.bind',{
+                                            initialValue:'0'
+                                        })(
                                             <RadioGroup>
-                                                <Radio value="bind">Bind An Existing Account</Radio>
-                                                <Radio value="create and bind">Create a new account and bind with a client</Radio>
-                                                <Radio value="not bind">Do Not Bind Commission Account</Radio>
+                                                <Radio value="1">绑定已有账号</Radio>
+                                                <Radio value="2">新建账号并绑定</Radio>
+                                                <Radio value="0">不绑定返佣账号</Radio>
                                             </RadioGroup>
                                         )}
                                     </FormItem>
-                                </Col>  
+                                </Col>
+                            </Row>
+                            {getFieldValue('customerAccount.bind') === '0'||<Row>
                                 <Col span={11}>
                                     <FormItem {...formItemLayout} label="账号服务器" style={{marginBottom:10}}>
-                                        {getFieldDecorator('accountserver')(
+                                        {getFieldDecorator('customerAccount.host_id',{
+                                            rules:[{ required: true, message: '请选中账号服务器' }],
+                                        })(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value="CEO">CEO</Option>
-                                                <Option value="Head of Sales">Head of Sales</Option>
-                                                <Option value="Sales">Sales</Option>
+                                                {this.state.agent_hosts.map(v=>{
+                                                    return (<Option value={v.id} key={v.id}>{v.name}</Option>)
+                                                })}
                                             </Select>
                                         )}
                                     </FormItem>
+                                    {getFieldValue('customerAccount.bind') === '2'&&Boolean(getFieldValue('customerAccount.host_id'))&&
+                                        <div>
+                                            <FormItem {...formItemLayout} label="MT4 组" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.mt_group_id', {
+                                                    rules:[{required:true,message:"请选择"}]
+                                                })(
+                                                    <Select>
+                                                        <Option value="1">GQ-50-Offset-00</Option>
+                                                        <Option value="2">GQ-50-Offset-10</Option>
+                                                        <Option value="3">GQ-50-Offset-20</Option>
+                                                        <Option value="4">GQ-50-Offset-30</Option>
+                                                        <Option value="5">....</Option>
+                                                    </Select>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="杠杆" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.leverage_id', {
+                                                    rules:[{required:true,message:"请选择"}]
+                                                })(
+                                                    <Select>
+                                                        <Option value="1">1:1</Option>
+                                                        <Option value="2">1:2</Option>
+                                                        <Option value="3">1:3</Option>
+                                                        <Option value="4">1:5</Option>
+                                                        <Option value="5">....</Option>
+                                                    </Select>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="主密码" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.password')(
+                                                    <Input type="password" />
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="交易状态" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.transaction_status', {
+                                                    rules: [{ required: true, message: '' }],
+                                                    initialValue:1
+                                                })(
+                                                    <RadioGroup>
+                                                        <Radio value={1}>启用</Radio>
+                                                        <Radio value={0}>禁用</Radio>
+                                                    </RadioGroup>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="Lead source" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.lead_source')(<Input />)}
+                                            </FormItem>
+                                        </div>
+                                    }   
                                 </Col>
                                 <Col span={11}>
                                     <FormItem {...formItemLayout} label="绑定返佣账号" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bindaccount')(
-                                            <Select
+                                        {getFieldDecorator('customerAccount.id',{
+                                            rules:[{ required: true, message: '请填写或选择返佣账号' }],
+                                        })(
+                                            (getFieldValue('customerAccount.bind') === '1')?<Select
                                                 showSearch
                                                 style={{ width: '100%' }}
                                                 placeholder="Select a person"
                                                 optionFilterProp="children"
                                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                            >
+                                                                                            >
                                                 <Option value="jack">Jack</Option>
-                                            </Select>
-                                        )}
+                                            </Select>:<Input />)
+                                        }
                                     </FormItem>
+                                    {getFieldValue('customerAccount.bind') === '2'&&Boolean(getFieldValue('customerAccount.host_id'))&&
+                                        <div>
+                                            <FormItem {...formItemLayout} label="账户组" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.acc_group_id')(
+                                                    <Select
+                                                    showSearch
+                                                    style={{ width: 200 }}
+                                                    placeholder="Select a person"
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                    >
+                                                        <Option value="1">GQ</Option>
+                                                        <Option value="2">1月底</Option>
+                                                        <Option value="3">2月底</Option>
+                                                        {/* 后台可设置添加的 */}
+                                                    </Select>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="返佣用户" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.user_id')(
+                                                    <Select
+                                                    showSearch
+                                                    style={{ width: 200 }}
+                                                    placeholder="Select a person"
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                    >
+                                                        <Option value="1">请选择</Option>
+                                                        {/* 后台返回的 */}
+                                                    </Select>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="投资密码" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.password_investor')(
+                                                    <Input type="password" />
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="登录状态" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.login_status', {
+                                                    rules: [{ required: true, message: '' }],
+                                                    initialValue:1
+                                                })(
+                                                    <RadioGroup>
+                                                        <Radio value={1}>启用</Radio>
+                                                        <Radio value={0}>禁用</Radio>
+                                                    </RadioGroup>
+                                                )}
+                                            </FormItem>
+                                            <FormItem {...formItemLayout} label="发送报告" style={{marginBottom:10}}>
+                                                {getFieldDecorator('customerAccount.is_report')(<Switch />)}
+                                            </FormItem>
+                                        </div>
+                                    }
                                 </Col>
-                                
-                            </Row>  
+                            </Row>}
                         </Card>
+                        <div style={{position: 'absolute',bottom: 0,width: '100%',borderTop: '1px solid #e8e8e8',padding: '10px 16px',textAlign: 'right',left: 0,background: '#fff',borderRadius: '0 0 4px 4px',}}>
+                            <Button htmlType="submit" type="primary">保存</Button>
+                            <Button style={{marginRight: 8,}} onClick={this.onClose}>取消</Button> 
+                        </div>
                     </Form>
-                    <div style={{position: 'absolute',bottom: 0,width: '100%',borderTop: '1px solid #e8e8e8',padding: '10px 16px',textAlign: 'right',left: 0,background: '#fff',borderRadius: '0 0 4px 4px',}}>
-                        <Button onClick={this.onClose} type="primary">保存</Button>
-                        <Button style={{marginRight: 8,}} onClick={this.onClose}>取消</Button> 
-                    </div>
                 </Drawer>
+                {/* 批量划转Modal */}
+                <Modal
+                visible={this.state.transferVisible}
+                title="批量划转"
+                onOk={this.transferOk}
+                onCancel={this.transferCancel}
+                footer={[
+                    <Button key="back" onClick={this.transferCancel}>取消</Button>,
+                    <Button key="submit" type="primary" loading={this.state.transferLoading} onClick={this.transferOk}>确认</Button>,
+                ]}
+                >
+                    <p>是否将选中的用户转移给其他负责人？</p>
+                    <Select
+                        showSearch
+                        style={{width:200}}
+                        value={this.state.transferValue}
+                        defaultActiveFirstOption={false}
+                        showArrow={false}
+                        filterOption={false}
+                        onSearch={this.transferSearch}
+                        onChange={this.transferChange}
+                        notFoundContent={null}
+                    >
+                        <Option value="1">User_id:1</Option>
+                        {transferOptions}
+                    </Select>
+                </Modal>
+                {/* 编辑用户 */}
                 <Route path={this.props.match.url+'/:userid'} component={EditUsermgmt} />
             </div>
         )
@@ -643,8 +873,9 @@ class Usermgmt extends Component {
 }
 
 const mapStateToProps = state => {
-    const { code = {data: {}} } = state.httpData;
-    return {code};
+    const { code = {data: {}},auth = {data:{}} } = state.httpData;
+    const { user = {data: {}} } = state.httpUser;
+    return {code,auth,user};
 };
 
 

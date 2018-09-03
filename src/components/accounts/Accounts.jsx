@@ -1,11 +1,12 @@
 // 账户
 import React, {Component} from 'react';
 import { Row, Col, Card, Table, Button, Icon, Select, DatePicker, Input, Pagination, 
-    Drawer, Form, Upload, Modal, Checkbox, Radio, Cascader, Switch, Alert } from 'antd';
+    Drawer, Form, Upload, Modal, Checkbox, Radio, Cascader, Switch, Alert, message } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
 import * as config from '../../axios/config';
+import { get, CRM } from '../../axios/tools';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
@@ -202,11 +203,21 @@ class Accounts extends Component {
            pagesize:'10'
         },
         // 总条数
-        total:50
-
+        total:50,
+        agent_hosts:[],
     };
     componentWillMount() {
-        this.getCustomerlists();
+        // 获取账号服务器
+        get({url:CRM.hosts}).then(res=>{
+            console.log("res:",res);
+            if(res.is_succ){
+                this.setState({agent_hosts:res.data});
+            }else{
+                message.error(res.message);
+            }
+        })
+
+        // this.getCustomerlists();
         this.setState({refreshtime:moment(new Date()).format('YYYY-MM-DD hh:mm:ss')})
     }
     componentDidMount(){
@@ -411,9 +422,11 @@ class Accounts extends Component {
                                             <Button type="primary" onClick={this.showDrawer} ><Icon type="plus" /><FormattedMessage id="create.account" /></Button>
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
-                                            <Select defaultValue="0" onChange={this.handleChange1}>
-                                                <Option value="0">DD</Option>
-                                            </Select>
+                                            {this.state.agent_hosts.length?<Select defaultValue={this.state.agent_hosts[0].id} onChange={this.handleChange1}>
+                                                {this.state.agent_hosts.map(v=>{
+                                                    return (<Option value={v.id} key={v.id}>{v.name}</Option>)
+                                                })}
+                                            </Select>:''}
                                         </span>
                                         <span style={{marginRight:10,marginBottom:5}}>
                                             <Select 

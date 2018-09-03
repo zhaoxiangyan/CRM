@@ -44,11 +44,11 @@ class App extends Component {
     componentDidMount() {
         const openNotification = () => {
             notification.open({
-              message: 'Andy',
+              message: 'Welcome',
               description: (
                   <div>
-                      <p>GitHub地址： <a href="localhost" target="_blank" rel="noopener noreferrer">github</a></p>
-                      <p>博客地址：<a href="localhost" target="_blank" rel="noopener noreferrer" >gitbu</a></p>
+                      <p>官网地址： <a href="https://www.gqfxcn.com" target="_blank" rel="noopener noreferrer">www.gqfxcn.com</a></p>
+                      <p>CRM地址：<a href="https://www.crm.gqfxcn.com" target="_blank" rel="noopener noreferrer" >www.crm.gqfxcn.com</a></p>
                   </div>
               ),
               icon: <Icon type="smile-circle" style={{ color: 'red' }} />,

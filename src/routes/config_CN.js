@@ -16,6 +16,7 @@ export default {
             ]
         },
         { key: '/app/accounts', title: '账户', icon: 'bank', component: 'AccountsIndex' },
+        { key: '/app/tasks', title: '任务', icon: 'folder', component: 'Tasks'},
         // {
         //     key: '/app/ui', title: 'UI', icon: 'scan',
         //     subs: [

@@ -63,6 +63,8 @@ export const CRM = {
     usercreate:'/api/user/create',
     // 用户身份证银行卡图片头像上传
     userupload:'/api/user/upload',
+    // 获取角色
+    agentroles:'/api/agent/roles',
 }
 
 export const API = {

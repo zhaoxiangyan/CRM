@@ -16,6 +16,7 @@ export default {
             ]
         },
         { key: '/app/accounts', title: 'Accounts', icon: 'bank', component: 'AccountsIndex' },
+        { key: '/app/tasks', title: 'Tasks', icon: 'folder', component: 'Tasks'},
         // {
         //     key: '/app/ui', title: 'UI', icon: 'scan',
         //     subs: [

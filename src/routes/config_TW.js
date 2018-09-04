@@ -16,6 +16,7 @@ export default {
             ]
         },
         { key: '/app/accounts', title: '賬戶', icon: 'bank', component: 'AccountsIndex' },
+        { key: '/app/tasks', title: '任務', icon: 'folder', component: 'Tasks'},
         // {
         //     key: '/app/ui', title: 'UI', icon: 'scan',
         //     subs: [

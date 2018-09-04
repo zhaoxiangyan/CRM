@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { Menu, Icon, Layout, Badge, Popover, message } from 'antd';
 import screenfull from 'screenfull';
-// import { gitOauthToken, gitOauthInfo } from '../axios';
-// import { queryString } from '../utils';
-// import avater from '../style/imgs/b1.jpg';
 import SiderCustom from './SiderCustom';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { get, CRM } from '../axios/tools';
 import {FormattedMessage} from 'react-intl';
 import { bindActionCreators } from 'redux';
-import { langData,receiveUser } from '@/action';
+import { userAction } from '@/action';
 const { Header } = Layout;
 const SubMenu = Menu.SubMenu;
 
@@ -22,52 +19,19 @@ class HeaderCustom extends Component {
         full:false
     };
     componentDidMount() {
-        const { receiveUser } = this.props;
+        const { userAction } = this.props;
         // 获取登录用户资料
         get({
             url:CRM.userinfo
         }).then(res=>{
             console.log("res:",res);
             if(res.is_succ){
-                receiveUser(res.data, 'user');
+                userAction(res.data, 'user');
                 this.setState({user: res.data});
             }else{
                 message.error(res.message);
             }
         })
-        // 外部接口proxy
-        // const QueryString = queryString();
-        // if (QueryString.hasOwnProperty('code')) {
-        //     console.log(QueryString);
-        //     const _user = JSON.parse(localStorage.getItem('user'));
-        //     !_user && gitOauthToken(QueryString.code).then(res => {
-        //         console.log(res);
-        //         gitOauthInfo(res.access_token).then(info => {
-        //             this.setState({
-        //                 user: info
-        //             });
-        //             localStorage.setItem('user', JSON.stringify(info));
-        //         });
-        //     });
-        //     _user && this.setState({
-        //         user: _user
-        //     });
-        // }
-        // const _user = JSON.parse(localStorage.getItem('user')) || '测试';
-        // if (!_user && QueryString.hasOwnProperty('code')) {
-        //     gitOauthToken(QueryString.code).then(res => {
-        //         gitOauthInfo(res.access_token).then(info => {
-        //             this.setState({
-        //                 user: info
-        //             });
-        //             localStorage.setItem('user', JSON.stringify(info));
-        //         });
-        //     });
-        // } else {
-        //     this.setState({
-        //         user: _user
-        //     });
-        // }
     };
     screenFull = () => {
         if (screenfull.enabled) {
@@ -86,20 +50,14 @@ class HeaderCustom extends Component {
     };
     clickCN = () =>{
         localStorage.setItem('lang', 'zh_CN');
-        const {langData} = this.props;
-        langData('zh_CN');
         window.location.reload();
     };
     clickTW = () =>{
         localStorage.setItem('lang', 'zh_TW');
-        const {langData} = this.props;
-        langData('zh_TW');
         window.location.reload();
     };
     clickUS = () =>{
         localStorage.setItem('lang', 'en_US');
-        const {langData} = this.props;
-        langData('en_US');
         window.location.reload();
     };
     logout = () => {
@@ -128,7 +86,7 @@ class HeaderCustom extends Component {
         return (
             <Header style={{ background: '#fff', padding: 0, height: 65 }} className="custom-theme" >
                 {
-                    responsive.data.isMobile ? (
+                    responsive.isMobile ? (
                         <Popover content={<SiderCustom popoverHide={this.popoverHide} />} trigger="click" placement="bottomLeft" visible={this.state.visible} onVisibleChange={this.handleVisibleChange}>
                             <Icon type="bars" className="trigger custom-trigger" />
                         </Popover>
@@ -184,12 +142,11 @@ class HeaderCustom extends Component {
 }
 
 const mapStateToProps = state => {
-    const { responsive = {data: {}} } = state.httpData;
-    return {responsive};
+    const {lang,responsive} = state.clientData;
+    return {responsive,lang};
 };
 const mapDispatchToProps = dispatch => ({
-    langData: bindActionCreators(langData, dispatch),
-    receiveUser: bindActionCreators(receiveUser, dispatch)
+    userAction: bindActionCreators(userAction, dispatch)
 });
 
 export default withRouter(connect(mapStateToProps,mapDispatchToProps)(HeaderCustom));

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Form, Icon, Input, Button, Menu, Dropdown } from 'antd';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { langData } from '@/action';
 import {FormattedMessage} from 'react-intl';
 
 const FormItem = Form.Item;
@@ -19,8 +17,6 @@ class FindPassword extends React.Component {
     // 国际化
     langClick = e => {
         localStorage.setItem('lang', e.key);
-        const {langData} = this.props;
-        langData(e.key);
         window.location.reload();
     };
     render() {
@@ -67,12 +63,9 @@ class FindPassword extends React.Component {
 }
 
 const mapStateToPorps = state => {
-    const { lang = {data: {}} } = state.httpData;
+    const { lang } = state.clientData;
     return { lang };
 };
-const mapDispatchToProps = dispatch => ({
-    langData: bindActionCreators(langData, dispatch)
-});
 
 
-export default connect(mapStateToPorps, mapDispatchToProps)(Form.create()(FindPassword));
+export default connect(mapStateToPorps)(Form.create()(FindPassword));

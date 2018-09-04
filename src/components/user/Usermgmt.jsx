@@ -140,6 +140,14 @@ class Usermgmt extends Component {
         transferValue:undefined,
         // 账号服务器
         agent_hosts:[],
+        // 上传图片
+        fileList1:'',
+        fileList2:'',
+        fileList3:'',
+        fileList4:'',
+        // 角色选项
+        agent_roles:[],
+
     };
     componentWillMount(){
         this.getUsers();
@@ -256,6 +264,14 @@ class Usermgmt extends Component {
     }
     // 抽屉  添加
     showDrawer = () => {
+        // 获取角色
+        get({url:CRM.agentroles}).then(res=>{
+            if(res.is_succ){
+                this.setState({agent_roles:res.data});
+            }else{
+                message.error(res.message);
+            }
+        })
         // 获取账号服务器
         get({url:CRM.hosts}).then(res=>{
             console.log("res:",res);
@@ -265,7 +281,7 @@ class Usermgmt extends Component {
                 message.error(res.message);
             }
         })
-        this.setState({visible:true})    
+        this.setState({visible:true})  
     }
     onClose = () => {
         this.setState({visible: false});
@@ -286,33 +302,58 @@ class Usermgmt extends Component {
         console.log(`swith to ${checked}`);
     }
     // upload 身份证 银行卡
-    normFile1 = (e) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
-          return e;
-        }
-        return e && e.fileList;
+    cardFile1 = (e) => {
+        e.fileList = e.fileList.slice(-1);
+        this.setState({fileList1:e.fileList})
+        const {getFieldDecorator,setFieldsValue} = this.props.form;
+        getFieldDecorator('userData.proof_of_identity_img_a');
+        e.fileList&&e.fileList[0]&&e.fileList[0].response&&setFieldsValue({'userData.proof_of_identity_img_a':e.fileList[0].response.data});
     }
-    normFile2 = (e) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
-          return e;
-        }
-        return e && e.fileList;
+    // cardFile1 = (e,value,file,) => {
+    //     console.log(e,value,file)
+    //     e.fileList = e.fileList.slice(-1);
+    //     this.setState({file:e.fileList})
+    //     const {getFieldDecorator,setFieldsValue} = this.props.form;
+    //     getFieldDecorator(value);
+    //     e.fileList&&e.fileList[0]&&e.fileList[0].response&&setFieldsValue({value:e.fileList[0].response.data});
+    // }
+    removeFile1 = () => {
+        const {setFieldsValue} = this.props.form;
+        setFieldsValue({'userData.proof_of_identity_img_a':''})
     }
-    normFile3 = (e) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
-          return e;
-        }
-        return e && e.fileList;
+    cardFile2 = (e) => {
+        e.fileList = e.fileList.slice(-1);
+        this.setState({fileList2:e.fileList})
+        const {getFieldDecorator,setFieldsValue} = this.props.form;
+        getFieldDecorator('userData.proof_of_identity_img_b');
+        e.fileList&&e.fileList[0]&&e.fileList[0].response&&setFieldsValue({'userData.proof_of_identity_img_b':e.fileList[0].response.data});
     }
-    normFile4 = (e) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
-          return e;
-        }
-        return e && e.fileList;
+    removeFile2 = () => {
+        const {setFieldsValue} = this.props.form;
+        setFieldsValue({'userData.proof_of_identity_img_b':''})
+    }
+    bankFile3 = (e) => {
+        e.fileList = e.fileList.slice(-1);
+        this.setState({fileList3:e.fileList})
+        const {getFieldDecorator,setFieldsValue} = this.props.form;
+        getFieldDecorator('userData.bank_img_a');
+        e.fileList&&e.fileList[0]&&e.fileList[0].response&&setFieldsValue({'userData.bank_img_a':e.fileList[0].response.data});
+    }
+    removeFile3 = () => {
+        const {setFieldsValue} = this.props.form;
+        setFieldsValue({'userData.bank_img_a':''})
+    }
+    bankFile4 = (e) => {
+        e.fileList = e.fileList.slice(-1);
+        this.setState({fileList4:e.fileList})
+        const {getFieldDecorator,setFieldsValue} = this.props.form;
+        getFieldDecorator('userData.bank_img_b');
+        e.fileList&&e.fileList[0]&&e.fileList[0].response&&setFieldsValue({'userData.bank_img_b':e.fileList[0].response.data});
+    }
+    removeFile4 = () => {
+        console.log('remove');
+        const {setFieldsValue} = this.props.form;
+        setFieldsValue({'userData.bank_img_b':''})
     }
     drawerSubmit = (e) => {
         e.preventDefault();
@@ -327,16 +368,17 @@ class Usermgmt extends Component {
                     }).then(res=>{
                         console.log("res:",res);
                         if(res.is_succ){
-                            
+                            this.onClose();
+                            message.success('添加用户成功');
                         }else{
-                            
+                            message.error(res.message);
                         }
                     })
             }
         });
     };
     render() {
-        const {intl,user,code,auth} = this.props;
+        const {intl,phone_code,token} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
         // 批量划转
         const transferOptions = this.state.transferData.map(d => <Option key={d.value}>{d.text}</Option>);
@@ -363,7 +405,7 @@ class Usermgmt extends Component {
                 filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
                 onChange={this.phoneChange}
             >
-            {code.map(r=>{
+            {phone_code.map(r=>{
                 return (
                     <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
                 )
@@ -494,7 +536,7 @@ class Usermgmt extends Component {
                                     </FormItem>
                                     <FormItem {...formItemLayout} label="登录密码" style={{marginBottom:10}}>
                                         {getFieldDecorator('user.password', {
-                                            rules: [{ required: false, message: '请输入登录密码!' }],
+                                            rules: [{ required: true, message: '请输入登录密码!' }],
                                         })(
                                             <div style={{position:'relative'}}>
                                                 <Input type={this.state.passwordType?'password':'text'} placeholder="" />
@@ -507,7 +549,10 @@ class Usermgmt extends Component {
                                             rules: [{ required: true, message: '请选择角色!' }],
                                         })(
                                             <Select style={{ width: '100%' }} >
-                                                <Option value={user.data.user_id}>{user.data.id}....未知数据</Option>
+                                                {this.state.agent_roles.map(v=>{
+                                                    return (<Option value={v.id} key={v.id}>{v.display_name}</Option>)
+                                                })}
+                                                {/* <Option key={user.data.user_id} value={user.data.user_id}>{user.data.id}....未知数据</Option> */}
                                             </Select>
                                         )}
                                     </FormItem>
@@ -561,35 +606,36 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="身份证明A" style={{marginBottom:10}}>
-                                        {getFieldDecorator('userData.proof_of_identity_img_a', {
-                                                valuePropName: 'fileList',
-                                                getValueFromEvent: this.normFile1,
-                                            })(
                                             <Upload 
-                                            action={CRM.userupload} 
+                                            action={CRM.userupload}
+                                            onChange={this.cardFile1}
+                                            onRemove={this.removeFile1}
+                                            fileList={this.state.fileList1}
+                                            accept="image/*"
                                             listType="picture"
-                                            headers={{'Authorization':'Bearer '+auth.data.access_token}}
-                                            data={
-                                                (s)=>{ return {'file':s,'type':'proof_of_identity_img_a'}}
-                                            }
+                                            headers={{'Authorization':'Bearer '+token.access_token}}
+                                            data={s=> {return {'file':s,'type':'proof_of_identity_img_a'}}}
                                             >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
                                             </Upload>
-                                        )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="身份证明B" style={{marginBottom:10}}>
-                                        {getFieldDecorator('userData.proof_of_identity_img_b', {
-                                                valuePropName: 'fileList',
-                                                getValueFromEvent: this.normFile2,
-                                            })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
+                                            <Upload 
+                                            action={CRM.userupload}
+                                            onChange={this.cardFile2}
+                                            onRemove={this.removeFile2}
+                                            fileList={this.state.fileList2}
+                                            accept="image/*"
+                                            listType="picture"
+                                            headers={{'Authorization':'Bearer '+token.access_token}}
+                                            data={s=> {return {'file':s,'type':'proof_of_identity_img_b'}}}
+                                            >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
                                             </Upload>
-                                        )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="银行卡开户行" style={{marginBottom:10}}>
                                         {getFieldDecorator('userData.bank')(
@@ -606,28 +652,36 @@ class Usermgmt extends Component {
                                         )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="银行卡证明A" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bankcarda', {
-                                                valuePropName: 'fileList',
-                                                getValueFromEvent: this.normFile3,
-                                            })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
+                                            <Upload 
+                                            action={CRM.userupload}
+                                            onChange={this.bankFile3}
+                                            onRemove={this.removeFile3}
+                                            fileList={this.state.fileList3}
+                                            accept="image/*"
+                                            listType="picture"
+                                            headers={{'Authorization':'Bearer '+token.access_token}}
+                                            data={s=> {return {'file':s,'type':'bank_img_a'}}}
+                                            >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
                                             </Upload>
-                                        )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="银行卡证明B" style={{marginBottom:10}}>
-                                        {getFieldDecorator('bankcardb', {
-                                                valuePropName: 'fileList',
-                                                getValueFromEvent: this.normFile4,
-                                            })(
-                                            <Upload name="logo" action="/upload.do" listType="picture">
+                                            <Upload 
+                                            action={CRM.userupload}
+                                            onChange={this.bankFile4}
+                                            onRemove={this.removeFile4}
+                                            fileList={this.state.fileList4}
+                                            accept="image/*"
+                                            listType="picture"
+                                            headers={{'Authorization':'Bearer '+token.access_token}}
+                                            data={s=> {return {'file':s,'type':'bank_img_b'}}}
+                                            >
                                                 <Button>
                                                 <Icon type="upload" /> Click to upload
                                                 </Button>
                                             </Upload>
-                                        )}
                                     </FormItem>
                                     <FormItem {...formItemLayout1} label="是否做过代理业务" style={{marginBottom:10}}>
                                         {getFieldDecorator('userData.agency_experience')(
@@ -873,9 +927,9 @@ class Usermgmt extends Component {
 }
 
 const mapStateToProps = state => {
-    const { code = {data: {}},auth = {data:{}} } = state.httpData;
-    const { user = {data: {}} } = state.httpUser;
-    return {code,auth,user};
+    const { token } = state.serverData;
+    const {phone_code} = state.clientData;
+    return {phone_code,token};
 };
 
 

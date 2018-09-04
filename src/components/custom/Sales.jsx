@@ -5,9 +5,6 @@ import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
 import * as config from '../../axios/config';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { receiveUser } from '@/action';
 import moment from 'moment';
 
 const Option = Select.Option;
@@ -92,11 +89,9 @@ class Sales extends Component {
         console.log('Usermgmt');
     }
     componentDidMount(){
-        const { receiveUser } = this.props;
         axios.get(config.MOCK_CUSTOM_SALES).then(res => {
             console.log(typeof(res.data.data));
             this.setState({data:res.data,loading:false});
-            receiveUser(res.data,'user');
         }).catch(err => {
             console.log(err);
         });  
@@ -125,7 +120,6 @@ class Sales extends Component {
         return `Total ${total} items`;
     }
     render() {
-        const {user} = this.props;
         const { loading,reloadloading, selectedRowKeys } = this.state;
         // 表格 Table
         const rowSelection = {
@@ -184,7 +178,7 @@ class Sales extends Component {
                                         </InputGroup>
                                     </div>}
                                 </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={user.data.data} loading={loading} scroll={{x:1400}} size={'small'} />
+                                <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.data.data} loading={loading} scroll={{x:1400}} size={'small'} rowKey="id" />
                                 <div style={{textAlign:'right',marginTop:20}}>
                                     <Pagination size="small" total={50} showTotal={this.showTotal} showSizeChanger showQuickJumper />
                                 </div>
@@ -197,13 +191,6 @@ class Sales extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    const { user = {data: {}} } = state.httpUser;
-    return {user};
-};
 
-const mapDispatchToProps = dispatch => ({
-    receiveUser: bindActionCreators(receiveUser, dispatch)
-});
 
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(Sales));
+export default injectIntl(Sales);

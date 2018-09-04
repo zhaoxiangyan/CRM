@@ -1,18 +1,18 @@
 // Trader Work 用戶
 import React, {Component} from 'react';
-import { Row, Col, Card, Table, Button, Select, DatePicker, Input, Pagination } from 'antd';
+import { Row, Col, Card, Table, Button, Select, DatePicker, Input, Pagination, Tabs } from 'antd';
 import BreadcrumbCustom from '../BreadcrumbCustom';
 import {FormattedMessage,injectIntl} from 'react-intl';
 import axios from 'axios';
 import * as config from '../../axios/config';
 import moment from 'moment';
-import EditBwtauser from './Edit_bwtauser';
 import {Link,Route} from 'react-router-dom';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
 const InputGroup = Input.Group;
 const Search = Input.Search;
+const TabPane = Tabs.TabPane;
 
 const columns = [{
   title: <FormattedMessage id="user.traderwork.th1" />,
@@ -117,51 +117,55 @@ class Bwtauser extends Component {
         const hasSelected = selectedRowKeys.length > 0;
         return (
             <div className="gutter-example button-demo">
-                <BreadcrumbCustom first={<FormattedMessage id="user.breadcrumb1" />} second={<FormattedMessage id="user.breadcrumb3" />} />
+                <BreadcrumbCustom first="任务" />
                 <Row gutter={16}>
                     <Col className="gutter-row" md={24}>
                         <div className="gutter-box">
-                            <Card title={<FormattedMessage id="user.traderwork.title" />} bordered={false} >
-                                <div style={{ marginBottom: 16 }}>
-                                    {hasSelected?
-                                    <div>
-                                        <span style={{ marginRight: 8 }}>
-                                            <FormattedMessage id="user.select" values={{name:`${selectedRowKeys.length}`}} />
-                                        </span>
-                                        <Button type="primary" onClick={this.start} disabled={!hasSelected} loading={reloadloading}><FormattedMessage id="cancel" /></Button>
-                                        <Button type="primary" ><FormattedMessage id="delete" /></Button>
-                                        <Button type="primary" ><FormattedMessage id="send" /></Button>
-                                    </div>
-                                    :
-                                    <div>
-                                    <InputGroup compact>
-                                        <span style={{marginRight:10,marginBottom:5}}>
+                            <Card>
+                                <Tabs defaultActiveKey="1" style={{backgroundColor:'#fff'}} tabBarExtraContent={<Button>设置</Button>}>
+                                    <TabPane tab="Trader Work相关任务" key="1">
+                                        <div style={{ marginBottom: 16 }}>
+                                            {hasSelected?
+                                            <div>
+                                                <span style={{ marginRight: 8 }}>
+                                                    <FormattedMessage id="user.select" values={{name:`${selectedRowKeys.length}`}} />
+                                                </span>
+                                                <Button type="primary" onClick={this.start} disabled={!hasSelected} loading={reloadloading}><FormattedMessage id="cancel" /></Button>
+                                                <Button type="primary" ><FormattedMessage id="delete" /></Button>
+                                                <Button type="primary" ><FormattedMessage id="send" /></Button>
+                                            </div>
+                                            :
+                                            <div>
                                             <InputGroup compact>
-                                                <Button><FormattedMessage id="registertime" /></Button>
-                                                <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
+                                                <span style={{marginRight:10,marginBottom:5}}>
+                                                    <InputGroup compact>
+                                                        <Button><FormattedMessage id="registertime" /></Button>
+                                                        <RangePicker ranges={{[intl.messages.ranges_day]:[moment(), moment()], [intl.messages.ranges_month]: [moment(), moment().endOf('month')] }} onChange={this.onChange3} />
+                                                    </InputGroup>
+                                                </span>
+                                                <span style={{float:'right'}}>
+                                                    <InputGroup compact >
+                                                    <Select defaultValue="Sign Up" >
+                                                        <Option value="Sign Up">Sign Up</Option>
+                                                        <Option value="Sign In">Sign In</Option>
+                                                    </Select>
+                                                    <Search placeholder="input search text" onSearch={value => console.log(value)} enterButton style={{width:180}} />
+                                                    </InputGroup>
+                                                </span>
                                             </InputGroup>
-                                        </span>
-                                        <span style={{float:'right'}}>
-                                            <InputGroup compact >
-                                            <Select defaultValue="Sign Up" >
-                                                <Option value="Sign Up">Sign Up</Option>
-                                                <Option value="Sign In">Sign In</Option>
-                                            </Select>
-                                            <Search placeholder="input search text" onSearch={value => console.log(value)} enterButton style={{width:180}} />
-                                            </InputGroup>
-                                        </span>
-                                    </InputGroup>
-                                    </div>}
-                                </div>
-                                <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.data.data} loading={loading} scroll={{x:1400}} size={'small'} />
-                                <div style={{textAlign:'right',marginTop:20}}>
-                                    <Pagination size="small" total={50} showTotal={this.showTotal} showSizeChanger showQuickJumper />
-                                </div>
+                                            </div>}
+                                        </div>
+                                        <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.data.data} loading={loading} scroll={{x:1400}} size={'small'} />
+                                        <div style={{textAlign:'right',marginTop:20}}>
+                                            <Pagination size="small" total={50} showTotal={this.showTotal} showSizeChanger showQuickJumper />
+                                        </div>
+                                    </TabPane>
+                                    <TabPane tab="代理任务" key="2">Content of Tab Pane 2</TabPane>
+                                </Tabs>
                             </Card>
                         </div>
                     </Col>
                 </Row>
-                <Route path={this.props.match.url+'/:userid'} component={EditBwtauser} />
             </div>
         )
     }

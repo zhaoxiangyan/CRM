@@ -114,7 +114,7 @@ class SiderCustom extends Component {
 }
 
 const mapStateToProps = state => {
-    const { lang = {data: {}} } = state.httpData;
+    const { lang } = state.clientData;
     return {lang};
 };
 

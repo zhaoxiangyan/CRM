@@ -162,14 +162,13 @@ class CustomersDetail extends Component{
         this.setState({investmentpasswordType:!this.state.investmentpasswordType})
     }
     render(){
-        const {intl} = this.props;
+        const {intl,phone_code} = this.props;
         const formItemLayout = {labelCol: { span: 24,style:{paddingBottom:2} },wrapperCol: { span: 24 }};
         const formItemLayout1 = {labelCol: { span: 8 },wrapperCol: { span: 8 }};
         const formItemLayout2 = {labelCol: { span: 8 },wrapperCol: { span: 16 }};
         const formItemLayout3 = {labelCol: { span: 4 },wrapperCol: { span: 20 }};
         const { getFieldDecorator } = this.props.form;
         // 手机select
-        const {code} = this.props;
         const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
@@ -181,7 +180,7 @@ class CustomersDetail extends Component{
                 dropdownMatchSelectWidth={false}
                 filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
             >
-            {code.map(r=>{
+            {phone_code.map(r=>{
                 return (
                     <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
                 )
@@ -1117,8 +1116,8 @@ class CustomersDetail extends Component{
 }
 
 const mapStateToProps = state => {
-    const { code = {data: {}} } = state.httpData;
-    return {code};
+    const { phone_code } = state.clientData;
+    return {phone_code};
 };
 
 

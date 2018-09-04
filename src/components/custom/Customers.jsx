@@ -6,7 +6,7 @@ import {FormattedMessage,injectIntl} from 'react-intl';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
-import { get, CRM } from '../../axios/tools';
+import {post, CRM } from '../../axios/tools';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
@@ -70,25 +70,25 @@ const columns = [{
     sorter:true
 }, {
     title: <FormattedMessage id="custom.customers.th13" />,
-    dataIndex: 'account',
+    dataIndex: 'accounts',
     align:'center',
-    // render:text=>{
-    //     if(text.length === 0){
-    //         return <span />;
-    //     }else if(text.length === 1){
-    //         return <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}</Link>;
-    //     }else{
-    //         return <Popover 
-    //                 content={<div>
-    //                     {text.map( (v,i) =>(
-    //                         <p key={i} style={{marginBottom:0}}><Link to={"/app/accounts/"+v.number} target="_blank">{v.number}</Link></p>
-    //                     ))}
-    //                 </div>}
-    //                >
-    //                     <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}&nbsp;...</Link>
-    //                </Popover>;
-    //     }
-    // }
+    render:text=>{
+        if(text.length === 0){
+            return <span />;
+        }else if(text.length === 1){
+            return <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}</Link>;
+        }else{
+            return <Popover 
+                    content={<div>
+                        {text.map( (v,i) =>(
+                            <p key={i} style={{marginBottom:0}}><Link to={"/app/accounts/"+v.number} target="_blank">{v.number}</Link></p>
+                        ))}
+                    </div>}
+                   >
+                        <Link to={"/app/accounts/"+text[0].number} target="_blank">{text[0].number}&nbsp;...</Link>
+                   </Popover>;
+        }
+    }
 }, {
     title: <FormattedMessage id="custom.customers.th14" />,
     dataIndex: 'status_name',
@@ -148,7 +148,7 @@ class Customers extends Component {
     getCustomerlists = () => {
         console.log(this.state.search);
         this.setState({loading:true});
-        get({
+        post({
             url:CRM.getcustomerlists,
             data:this.state.search,
         }).then(res=>{
@@ -287,7 +287,7 @@ class Customers extends Component {
         const formItemLayout1 = {labelCol: { span: 5 },wrapperCol: { span: 19 }};
         const { getFieldDecorator } = this.props.form;
         // 手机select
-        const {code} = this.props;
+        const {phone_code} = this.props;
         const inputBefore = getFieldDecorator('code')(
             <Select
                 showSearch
@@ -299,7 +299,7 @@ class Customers extends Component {
                 filterOption={(input, option) => (option.props.children[1].props.children.toLowerCase().indexOf(input) >= 0 ||option.props.children[2].props.children.toLowerCase().indexOf(input) >= 0)}
                 onChange={this.phoneChange}
             >
-            {code.map(r=>{
+            {phone_code.map(r=>{
                 return (
                     <Option key={r.value} value={r.value} className="codeOption"><img src={r.img} alt={r.option} /><span>{r.option}</span><span>{r.value}</span></Option>
                 )
@@ -574,8 +574,8 @@ class Customers extends Component {
 }
 
 const mapStateToProps = state => {
-    const { code = {data: {}} } = state.httpData;
-    return {code};
+    const { phone_code } = state.clientData;
+    return {phone_code};
 };
 
 

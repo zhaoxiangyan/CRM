@@ -31,6 +31,8 @@ import CustomersIndex from './custom/CustomersIndex';
 import Sales from './custom/Sales';
 // 账户
 import AccountsIndex from './accounts/AccountsIndex';
+// 任务
+import Tasks from './tasks/Tasks';
 
 const WysiwygBundle = (props) => (
     <Bundle load={Wysiwyg}>
@@ -44,5 +46,5 @@ export default {
     Tabs, Banners, Drags, Dashboard, Gallery, BasicAnimations,
     ExampleAnimations, AuthBasic, RouterEnter, WysiwygBundle,
     Cssmodule, MapUi, Usermgmt, Bwtauser, CustomersIndex, Sales,
-    AccountsIndex
+    AccountsIndex, Tasks
 }

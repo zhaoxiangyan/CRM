@@ -91,7 +91,7 @@ class EditBwtauser extends Component{
     // 抽屉
     onClose = () => {
         this.setState({visible: false});
-        this.props.history.push('/app/user/bwta');
+        this.props.history.push('/app/user/bwtauser');
     };
     render(){
         return(

@@ -6,25 +6,14 @@ import FindPassword from './components/pages/FindPassword';
 import App from './App';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { langData } from '@/action';
+import { langAction } from '@/action';
 
-// export default () => (
-//     <Router>
-//         <Switch>
-//             <Route exact path="/" render={() => <Redirect to="/app/dashboard/index" push />} />        
-//             <Route path="/app" component={App} />
-//             <Route path="/404" component={NotFound} />
-//             <Route path="/login" component={Login} />
-//             <Route component={NotFound} />
-//         </Switch>
-//     </Router>
-// )
 
 class Page extends Component{
     componentWillMount() {
-        const { langData } = this.props;
-        const lang = localStorage.getItem('lang');
-        lang && langData(lang);
+        const { langAction } = this.props;
+        const language = localStorage.getItem('lang');
+        language && langAction(language);
     }
     render(){
         return(
@@ -43,7 +32,7 @@ class Page extends Component{
     }  
 }
 const mapDispatchToProps = dispatch => ({
-    langData: bindActionCreators(langData, dispatch)
+    langAction: bindActionCreators(langAction, dispatch)
 });
 
 export default connect(null,mapDispatchToProps)(Page);

@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Icon, Input, Button, Checkbox, Menu, Dropdown, Alert } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchData, receiveData, langData, authData } from '@/action';
+import { tokenAction } from '@/action';
 import {FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
 import { post, CRM } from '../../axios/tools';
@@ -39,22 +39,19 @@ class Login extends React.Component {
                         console.log("res:",res);
                         if(res.is_succ){
                             this.setState({errorstatus:res.is_succ});
-                            authData(res.data);
+                            tokenAction(res.data);
                             localStorage.setItem('user', JSON.stringify(res.data));
                             this.props.history.push('/app/dashboard/index');
                         }else{
                             this.setState({error:res.message,errorstatus:res.is_succ});
                         }
                     })
-                // if (values.userName === 'guest' && values.password === 'guest') fetchData({funcName: 'guest', stateName: 'auth'});
             }
         });
     };
     // 国际化
     langClick = e => {
         localStorage.setItem('lang', e.key);
-        const {langData} = this.props;
-        langData(e.key);
         window.location.reload();
     };
     render() {
@@ -116,14 +113,11 @@ class Login extends React.Component {
 }
 
 const mapStateToPorps = state => {
-    const { lang = {data: {}} } = state.httpData;
+    const { lang } = state.clientData;
     return { lang };
 };
 const mapDispatchToProps = dispatch => ({
-    fetchData: bindActionCreators(fetchData, dispatch),
-    receiveData: bindActionCreators(receiveData, dispatch),
-    langData: bindActionCreators(langData, dispatch),
-    authData: bindActionCreators(authData, dispatch)
+    tokenAction: bindActionCreators(tokenAction, dispatch)
 });
 
 

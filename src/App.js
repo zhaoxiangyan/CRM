@@ -3,7 +3,7 @@ import { Layout, notification, Icon } from 'antd';
 import './style/index.less';
 import SiderCustom from './components/SiderCustom';
 import HeaderCustom from './components/HeaderCustom';
-import { receiveData,langData,codeData } from './action';
+import { tokenAction,phone_codeAction,responsiveAction } from './action';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Routes from './routes';
@@ -19,7 +19,7 @@ class App extends Component {
         collapsed: false,
     };
     componentWillMount() {
-        const { receiveData,langData,codeData } = this.props;
+        const { tokenAction,phone_codeAction } = this.props;
         if(localStorage.getItem('user')){
             axios.defaults.headers['Authorization']='Bearer '+JSON.parse(localStorage.getItem('user')).access_token;
         }else{
@@ -27,13 +27,10 @@ class App extends Component {
         }
         const user = JSON.parse(localStorage.getItem('user'));
         const lang = localStorage.getItem('lang');
-        user && receiveData(user, 'auth');
-        lang && langData(lang);
-        // receiveData({a: 213}, 'auth');
-        // fetchData({funcName: 'admin', stateName: 'auth'});
+        user && tokenAction(user);
         // 获取手机区号 并储存进store
         console.log(Code);
-        codeData(Code,lang);
+        phone_codeAction(Code,lang);
         this.getClientWidth();
         window.onresize = () => {
             console.log('屏幕变化了');
@@ -59,12 +56,15 @@ class App extends Component {
         const isFirst = JSON.parse(localStorage.getItem('isFirst'));
         !isFirst && openNotification();
     }
+    // shouldComponentUpdate(){
+    //     return (this.props.history.action === 'POP')
+    // }
     getClientWidth = () => {    // 获取当前浏览器宽度并设置responsive管理响应式
-        const { receiveData } = this.props;
+        const { responsiveAction } = this.props;
         // 解构  destructuring  ES6语法
         const clientWidth = document.body.clientWidth;
         console.log(clientWidth);
-        receiveData({isMobile: clientWidth <= 992}, 'responsive');
+        responsiveAction({isMobile: clientWidth <= 992});
     };
     toggle = () => {
         this.setState({
@@ -72,24 +72,22 @@ class App extends Component {
         });
     };
     render() {
-        console.log(this.props.auth);
-        // console.log(this.props.responsive);
-        const { auth, responsive, lang } = this.props;
+        const { token, responsive } = this.props;
         return (
             <Layout>
-                {!responsive.data.isMobile && <SiderCustom collapsed={this.state.collapsed} />}
+                {!responsive.isMobile && <SiderCustom collapsed={this.state.collapsed} />}
                 <Layout style={{flexDirection: 'column'}}>
-                    <HeaderCustom lang={lang} toggle={this.toggle} collapsed={this.state.collapsed} user={auth.data || {}} />
+                    <HeaderCustom toggle={this.toggle} collapsed={this.state.collapsed} user={token || {}} />
                     <Content style={{ margin: '0 16px', overflow: 'initial' }}>
-                        <Routes auth={auth} />
+                        <Routes auth={token} />
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>
-                    React-Admin ©{new Date().getFullYear()} Created by 987670346@qq.com
+                    React-Admin ©{new Date().getFullYear()} Created by gqfxcn@qq.com
                     </Footer>
                 </Layout>
                 
                 {/* {
-                    responsive.data.isMobile && (   // 手机端对滚动很慢的处理
+                    responsive.isMobile && (   // 手机端对滚动很慢的处理
                         <style>
                         {`
                             #root{
@@ -105,13 +103,14 @@ class App extends Component {
 }
 
 const mapStateToProps = state => {
-    const { auth = {data: {}}, responsive = {data: {}}, lang = {data: {}} } = state.httpData;
-    return {auth, responsive, lang};
+    const { token } = state.serverData;
+    const {responsive} = state.clientData;
+    return {token, responsive};
 };
 const mapDispatchToProps = dispatch => ({
-    receiveData: bindActionCreators(receiveData, dispatch),
-    langData:bindActionCreators(langData,dispatch),
-    codeData:bindActionCreators(codeData,dispatch)
+    tokenAction: bindActionCreators(tokenAction, dispatch),
+    phone_codeAction:bindActionCreators(phone_codeAction,dispatch),
+    responsiveAction:bindActionCreators(responsiveAction,dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

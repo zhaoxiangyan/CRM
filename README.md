@@ -153,7 +153,8 @@ npm run build
     - ps: react-router 3.x的版本请查看代码分支router3.x
 - 增加cssmodule的支持（css, less）
     - 建议用css预处理器，文件名为xxx.module.less，引入相应组件即可使用。
-    - 具体做法参见新增模块，路由后缀：/app/cssModule。
+    - 具体做法参见新增模块，路由后缀：/app/cssModule
+- 09.05  bug:@9.3.5rc-tabs table滚动条无效
 
 ### 结尾
 

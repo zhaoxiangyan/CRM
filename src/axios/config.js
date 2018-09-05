@@ -12,3 +12,4 @@ export const MOCK_USER_TRADERWORK = MOCK_TOKEN + '/user/traderwork';        //�
 export const MOCK_CUSTOM_CUSTOMERS = MOCK_TOKEN + '/custom/customers';      //客户 列表数据
 export const MOCK_CUSTOM_SALES = MOCK_TOKEN + '/custom/sales';              //客户 销售机会列表数据
 export const MOCK_ACCOUNTS = MOCK_TOKEN + '/accounts';                      //账户 列表数据
+export const MOCK_TASKS = MOCK_TOKEN + '/tasks';                            //任务 相关任务 列表数据
